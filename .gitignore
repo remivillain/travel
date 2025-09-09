@@ -1,0 +1,19 @@
+# Java / Maven
+target/
+*.class
+*.log
+*.jar
+*.war
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
