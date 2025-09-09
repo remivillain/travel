@@ -13,8 +13,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) // désactive CSRF pour simplifier les tests API
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers("api/health", "/v3/api-docs/**", "/swagger-ui/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin()) // permet les frames H2
             )
             .httpBasic(basic -> {}); // auth Basic par défaut pour les autres endpoints
 
