@@ -71,14 +71,19 @@ public class UserServiceImpl implements UserService {
             .filter(Objects::nonNull)
             .toList();
         user.setRoles(roles);
-        
+
         User savedUser = userRepository.save(user);
 
         return UserMapper.toDto(savedUser);
     }
 
     @Override
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public boolean deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

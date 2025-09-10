@@ -40,7 +40,12 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        boolean deleted = userService.deleteUser(id);
+        if (deleted) {
+            return ResponseEntity.ok("Utilisateur supprimé avec succès.");
+        } else {
+            return ResponseEntity.status(404).body("Utilisateur non trouvé.");
+        }
     }
 }

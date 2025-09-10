@@ -9,5 +9,5 @@ public interface UserService {
     List<UserDto> getAllUsers();
     Optional<UserDto> getUserById(Long id);
     UserDto saveUser(UserCreateDto userCreateDto);
-    void deleteUser(Long id);
+    boolean deleteUser(Long id);
 }
