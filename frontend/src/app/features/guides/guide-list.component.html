@@ -48,10 +48,7 @@
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
           >
             <option value="">Toutes mobilités</option>
-            <option value="voiture">Voiture</option>
-            <option value="vélo">Vélo</option>
-            <option value="à pied">À pied</option>
-            <option value="moto">Moto</option>
+            <option *ngFor="let opt of mobiliteOptions" [value]="opt">{{ formatEnum(opt) }}</option>
           </select>
 
           <select 
@@ -60,10 +57,7 @@
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
           >
             <option value="">Toutes saisons</option>
-            <option value="été">Été</option>
-            <option value="printemps">Printemps</option>
-            <option value="automne">Automne</option>
-            <option value="hiver">Hiver</option>
+            <option *ngFor="let opt of saisonOptions" [value]="opt">{{ formatEnum(opt) }}</option>
           </select>
 
           <select 
@@ -72,10 +66,7 @@
             class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
           >
             <option value="">Toutes audiences</option>
-            <option value="famille">Famille</option>
-            <option value="seul">Seul</option>
-            <option value="en groupe">En groupe</option>
-            <option value="entre amis">Entre amis</option>
+            <option *ngFor="let opt of pourQuiOptions" [value]="opt">{{ formatEnum(opt) }}</option>
           </select>
         </div>
       </div>

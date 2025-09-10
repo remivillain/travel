@@ -7,6 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { GuideService } from '../../core/services/guide.service';
 import { GuideFilters } from '../../core/models/guide-filter.model';
 import { Guide } from '../../core/models/guide.model';
+import { formatEnum } from '../../core/utils/utils-enum-format';
+import { EnumService } from '../../core/services/enum.service';
 
 @Component({
   selector: 'app-guide-list',
@@ -17,20 +19,26 @@ import { Guide } from '../../core/models/guide.model';
   
 })
 export class GuideListComponent implements OnInit {
+  formatEnum = formatEnum;
   private guideService = inject(GuideService);
+  private enumService = inject(EnumService);
   public authService = inject(AuthService);
   private router = inject(Router);
 
   guides = signal<Guide[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  
+
   searchTerm = '';
   filters: GuideFilters = {
     mobility: '',
     season: '',
     audience: ''
   };
+
+  mobiliteOptions: string[] = [];
+  saisonOptions: string[] = [];
+  pourQuiOptions: string[] = [];
 
   filteredGuides = computed(() => {
     let filtered = this.guides();
@@ -68,6 +76,18 @@ export class GuideListComponent implements OnInit {
 
   ngOnInit() {
     this.loadGuides();
+    this.enumService.getMobilites().subscribe({
+      next: opts => this.mobiliteOptions = opts,
+      error: () => this.mobiliteOptions = []
+    });
+    this.enumService.getSaisons().subscribe({
+      next: opts => this.saisonOptions = opts,
+      error: () => this.saisonOptions = []
+    });
+    this.enumService.getPourQui().subscribe({
+      next: opts => this.pourQuiOptions = opts,
+      error: () => this.pourQuiOptions = []
+    });
   }
 
   async loadGuides() {
