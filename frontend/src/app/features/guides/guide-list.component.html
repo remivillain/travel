@@ -110,35 +110,34 @@
         <div class="h-48 bg-gradient-to-r from-blue-400 to-purple-500 rounded-t-xl relative">
           <div class="absolute inset-0 bg-black bg-opacity-20 rounded-t-xl"></div>
           <div class="absolute bottom-4 left-4 text-white">
-            <h3 class="text-xl font-bold">{{ guide.title }}</h3>
-            <p class="text-sm opacity-90">{{ guide.days }} jour{{ guide.days > 1 ? 's' : '' }}</p>
+            <h3 class="text-xl font-bold">{{ guide.titre }}</h3>
+            <p class="text-sm opacity-90">{{ guide.nombreJours }} jour{{ guide.nombreJours > 1 ? 's' : '' }}</p>
           </div>
         </div>
 
         <div class="p-6">
           <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ guide.description }}</p>
-          
-          <!-- Options Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span 
-              *ngFor="let option of getGuideOptions(guide)"
-              class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
-            >
-              {{ option }}
-            </span>
+          <!-- Options -->
+          <div class="mb-4">
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span class="font-semibold text-blue-700">Mobilité :</span>
+              <span *ngFor="let mob of guide.mobilites" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">{{ mob }}</span>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span class="font-semibold text-green-700">Saison :</span>
+              <span *ngFor="let saison of guide.saisons" class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">{{ saison }}</span>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <span class="font-semibold text-purple-700">Pour qui :</span>
+              <span *ngFor="let audience of guide.pourQui" class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">{{ audience }}</span>
+            </div>
           </div>
 
-          <!-- Activities count -->
-          <div class="flex items-center justify-between text-sm text-gray-500">
-            <span class="flex items-center">
-              <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              {{ guide.activities?.length || 0 }} activités
-            </span>
-            <span class="text-blue-600 font-medium">Voir le guide →</span>
+          <!-- Activités -->
+          <div *ngIf="guide.guideActivites?.length" class="mb-4">
+            <div class="font-semibold text-blue-700 mb-2">Nombre d'activités : {{ guide.guideActivites.length }}</div>
           </div>
+
         </div>
       </div>
     </div>

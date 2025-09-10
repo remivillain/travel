@@ -1,13 +1,14 @@
+import { GuideActivite } from './guide-activite.model';
+
 export interface Guide {
   id: number;
-  title: string;
+  titre: string;
   description: string;
-  days: number;
-  activities?: any[];
-  options: {
-    mobility?: string[];
-    season?: string[];
-    audience?: string[];
-  };
+  nombreJours: number;
+  mobilites: string[];
+  saisons: string[];
+  pourQui: string[];
+  guideActivites: GuideActivite[];
+  invitedUserIds: number[];
 }
 

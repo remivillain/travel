@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { GuideService } from '../../core/services/guide.service';
-import { Guide } from '../../core/models/guide.model';
 import { GuideFilters } from '../../core/models/guide-filter.model';
+import { Guide } from '../../core/models/guide.model';
 
 @Component({
   selector: 'app-guide-list',
@@ -39,7 +39,7 @@ export class GuideListComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(guide => 
-        guide.title.toLowerCase().includes(term) ||
+        guide.titre.toLowerCase().includes(term) ||
         guide.description.toLowerCase().includes(term)
       );
     }
@@ -47,19 +47,19 @@ export class GuideListComponent implements OnInit {
     // Filters
     if (this.filters.mobility) {
       filtered = filtered.filter(guide => 
-        guide.options.mobility?.includes(this.filters.mobility!)
+        guide.mobilites?.includes(this.filters.mobility!)
       );
     }
 
     if (this.filters.season) {
       filtered = filtered.filter(guide => 
-        guide.options.season?.includes(this.filters.season!)
+        guide.saisons?.includes(this.filters.season!)
       );
     }
 
     if (this.filters.audience) {
       filtered = filtered.filter(guide => 
-        guide.options.audience?.includes(this.filters.audience!)
+        guide.pourQui?.includes(this.filters.audience!)
       );
     }
 
@@ -95,9 +95,9 @@ export class GuideListComponent implements OnInit {
 
   getGuideOptions(guide: Guide): string[] {
     const options: string[] = [];
-    if (guide.options.mobility) options.push(...guide.options.mobility);
-    if (guide.options.season) options.push(...guide.options.season);
-    if (guide.options.audience) options.push(...guide.options.audience);
+    if (guide.mobilites) options.push(...guide.mobilites);
+    if (guide.saisons) options.push(...guide.saisons);
+    if (guide.pourQui) options.push(...guide.pourQui);
     return options.slice(0, 3); // Limit to 3 options for display
   }
 
