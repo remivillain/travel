@@ -56,6 +56,22 @@ public class GuideServiceImpl implements GuideService {
         return guideRepository.findById(id).map(GuideMapper::toDto);
     }
 
+    @Override
+    public GuideDto getGuideByIdForUser(Long id, Long userId) {
+        Guide guide = guideRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
+        
+        // Vérifier que l'utilisateur a accès à ce guide
+        boolean hasAccess = guide.getInvitedUsers().stream()
+            .anyMatch(user -> user.getId().equals(userId));
+        
+        if (!hasAccess) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'avez pas accès à ce guide");
+        }
+        
+        return GuideMapper.toDto(guide);
+    }
+
 
     @Override
     public void deleteGuide(Long id) {

@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface GuideService {
     List<GuideDto> getAllGuides();
     Optional<GuideDto> getGuideById(Long id);
+    GuideDto getGuideByIdForUser(Long id, Long userId);
     GuideDto saveGuide(GuideCreateDto guideCreateDto);
     void deleteGuide(Long id);
 }

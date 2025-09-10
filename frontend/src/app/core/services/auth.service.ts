@@ -18,7 +18,7 @@ export class AuthService {
     localStorage.removeItem('jwt');
   }
 
-  currentUser(): { email?: string } | null {
+  currentUser(): { id?: number, email?: string } | null {
     if (typeof window === 'undefined') return null;
     
     try {
@@ -26,9 +26,17 @@ export class AuthService {
       if (!token) return null;
       
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return { email: payload.email };
+      return { 
+        id: payload.userId || payload.id,
+        email: payload.email 
+      };
     } catch {
       return null;
     }
+  }
+
+  getCurrentUserId(): number | null {
+    const user = this.currentUser();
+    return user?.id || null;
   }
 }

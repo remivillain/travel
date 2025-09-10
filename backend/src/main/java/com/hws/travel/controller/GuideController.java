@@ -30,9 +30,11 @@ public class GuideController {
     }
 
     @GetMapping("/{id}")
-    public GuideDto getGuideById(@PathVariable Long id) {
-        return guideService.getGuideById(id)
-            .orElse(null);
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public GuideDto getGuideById(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        Long userId = userService.findIdByEmail(email);
+        return guideService.getGuideByIdForUser(id, userId);
     }
 
     @GetMapping("/mes-guides")

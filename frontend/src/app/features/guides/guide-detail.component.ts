@@ -43,8 +43,18 @@ export class GuideDetailComponent implements OnInit {
       const guide = await this.guideService.getGuide(id);
       this.guide.set(guide);
     } catch (err: any) {
-      this.error.set('Impossible de charger ce guide');
       console.error('Error loading guide:', err);
+      
+      // Gérer les différents types d'erreurs
+      if (err.status === 403) {
+        this.error.set('Accès refusé : Vous n\'êtes pas invité à consulter ce guide.');
+      } else if (err.status === 404) {
+        this.error.set('Guide non trouvé.');
+      } else if (err.status === 401) {
+        this.error.set('Vous devez être connecté pour accéder à ce guide.');
+      } else {
+        this.error.set('Impossible de charger ce guide. Veuillez réessayer.');
+      }
     } finally {
       this.loading.set(false);
     }

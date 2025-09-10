@@ -7,6 +7,7 @@ import { GuideActivite } from '../models/guide-activite.model';
 import { NetworkService } from './network.service';
 import { OfflineStorageService } from './offline-storage.service';
 import { SyncService } from './sync.service';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class GuideService {
@@ -16,7 +17,8 @@ export class GuideService {
     private http: HttpClient,
     private networkService: NetworkService,
     private offlineStorage: OfflineStorageService,
-    private syncService: SyncService
+    private syncService: SyncService,
+    private authService: AuthService
   ) {}
 
   private getAuthHeaders() {
@@ -30,7 +32,7 @@ export class GuideService {
       return [];
     }
 
-    // Si hors-ligne, retourner les données en cache
+    // Si hors-ligne, retourner les données en cache (déjà filtrées par le backend)
     if (!this.networkService.isOnline()) {
       const cachedGuides = this.offlineStorage.getCachedUserGuides();
       if (cachedGuides) {
@@ -60,6 +62,7 @@ export class GuideService {
 
       const guides = result ?? [];
       
+      // Le backend fait déjà le filtrage via /mes-guides, pas besoin de refiltrer
       // Toujours mettre en cache les guides récupérés (même si vide)
       this.offlineStorage.cacheUserGuides(guides);
       console.log(`📦 ${guides.length} guides mis en cache`);
@@ -110,7 +113,12 @@ export class GuideService {
           headers: this.getAuthHeaders() 
         }).pipe(
           catchError(error => {
-            // En cas d'erreur, essayer le cache
+            // Pour les erreurs d'autorisation/authentification, ne pas utiliser le cache
+            if (error.status === 401 || error.status === 403 || error.status === 404) {
+              throw error;
+            }
+            
+            // En cas d'autres erreurs réseau, essayer le cache
             const cachedGuide = this.offlineStorage.getCachedGuide(id);
             if (cachedGuide) {
               console.log(`📦 Guide ${id} chargé depuis le cache (erreur réseau)`);
@@ -121,11 +129,17 @@ export class GuideService {
         )
       );
 
+      // Le backend gère déjà les autorisations, pas besoin de vérifier côté frontend
       // Mettre en cache le guide récupéré
       this.offlineStorage.cacheGuide(guide);
       return guide;
-    } catch (error) {
-      // Dernière tentative avec le cache
+    } catch (error: any) {
+      // Pour les erreurs d'autorisation/authentification, ne pas utiliser le cache
+      if (error.status === 401 || error.status === 403 || error.status === 404) {
+        throw error;
+      }
+      
+      // Dernière tentative avec le cache pour les autres erreurs
       const cachedGuide = this.offlineStorage.getCachedGuide(id);
       if (cachedGuide) {
         console.log(`📦 Guide ${id} chargé depuis le cache (fallback)`);
