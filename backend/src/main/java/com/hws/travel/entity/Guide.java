@@ -1,5 +1,8 @@
 package com.hws.travel.entity;
 
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotNull;
+
 import lombok.*;
 import java.util.Set;
 
@@ -31,17 +34,27 @@ public class Guide {
     @EqualsAndHashCode.Include
     private Long id;
 
+    @Column(nullable = false)
+    @jakarta.validation.constraints.NotNull
     private String titre;
+
+    @Column(nullable = false)
+    @jakarta.validation.constraints.NotNull
     private String description;
+
+    @Column(nullable = false)
     private int nombreJours;
 
     @ElementCollection
+    @jakarta.validation.constraints.NotNull
     private Set<Mobilite> mobilites;
 
     @ElementCollection
+    @jakarta.validation.constraints.NotNull
     private Set<Saison> saisons;
 
     @ElementCollection
+    @jakarta.validation.constraints.NotNull
     private Set<PourQui> pourQui;
 
     @ManyToMany
