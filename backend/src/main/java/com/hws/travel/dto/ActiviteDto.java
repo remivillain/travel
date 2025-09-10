@@ -19,7 +19,5 @@ public class ActiviteDto {
     private String telephone;
     private String horairesOuverture;
     private String siteInternet;
-    private int jour;
-    private int ordre;
-    private Long guideId;
+    // jour, ordre, guideId sont gérés par GuideActivite
 }

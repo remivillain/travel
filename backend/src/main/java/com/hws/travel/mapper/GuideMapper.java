@@ -21,7 +21,7 @@ public class GuideMapper {
             .mobilites(guide.getMobilites() != null ? guide.getMobilites().stream().map(Enum::name).collect(Collectors.toSet()) : null)
             .saisons(guide.getSaisons() != null ? guide.getSaisons().stream().map(Enum::name).collect(Collectors.toSet()) : null)
             .pourQui(guide.getPourQui() != null ? guide.getPourQui().stream().map(Enum::name).collect(Collectors.toSet()) : null)
-            .activiteIds(guide.getActivites() != null ? guide.getActivites().stream().map(a -> a.getId()).collect(Collectors.toSet()) : null)
+            .guideActivites(guide.getGuideActivites() != null ? guide.getGuideActivites().stream().map(GuideActiviteMapper::toDto).collect(Collectors.toSet()) : null)
             .invitedUserIds(guide.getInvitedUsers() != null ? guide.getInvitedUsers().stream().map(User::getId).collect(Collectors.toSet()) : null)
             .build();
     }

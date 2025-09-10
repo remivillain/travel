@@ -20,12 +20,14 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserDto> getAllUsers() {
         return userService.getAllUsers().stream()
             .toList();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public UserDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
             .orElse(null);

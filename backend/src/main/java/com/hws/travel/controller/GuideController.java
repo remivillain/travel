@@ -1,14 +1,15 @@
 package com.hws.travel.controller;
 
+import com.hws.travel.dto.GuideCreateDto;
 import com.hws.travel.dto.GuideDto;
-import com.hws.travel.entity.Guide;
-import com.hws.travel.mapper.GuideMapper;
 import com.hws.travel.service.impl.GuideServiceImpl;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/guides")
+@RequestMapping("/api/guides")
 public class GuideController {
     private final GuideServiceImpl guideService;
 
@@ -17,23 +18,22 @@ public class GuideController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<GuideDto> getAllGuides() {
         return guideService.getAllGuides().stream()
-            .map(GuideMapper::toDto)
             .toList();
     }
 
     @GetMapping("/{id}")
     public GuideDto getGuideById(@PathVariable Long id) {
         return guideService.getGuideById(id)
-            .map(GuideMapper::toDto)
             .orElse(null);
     }
 
     @PostMapping
-    public GuideDto createGuide(@RequestBody GuideDto guideDto) {
-        Guide guide = GuideMapper.toEntity(guideDto);
-        return GuideMapper.toDto(guideService.saveGuide(guide));
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto createGuide(@RequestBody GuideCreateDto guideCreateDto) {
+        return guideService.saveGuide(guideCreateDto);
     }
 
     @DeleteMapping("/{id}")

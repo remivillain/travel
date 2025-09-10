@@ -23,6 +23,8 @@ import jakarta.persistence.OneToMany;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "guideActivites") 
+@EqualsAndHashCode(exclude = "guideActivites")
 public class Guide {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,6 @@ public class Guide {
     private Set<User> invitedUsers;
 
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL)
-    private Set<Activite> activites;
+    private Set<GuideActivite> guideActivites;
 
 }

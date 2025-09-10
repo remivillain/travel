@@ -10,18 +10,15 @@ public class ActiviteMapper {
     public static ActiviteDto toDto(Activite activite) {
         if (activite == null) return null;
         return ActiviteDto.builder()
-                .id(activite.getId())
-                .titre(activite.getTitre())
-                .description(activite.getDescription())
-                .categorie(activite.getCategorie() != null ? activite.getCategorie().name() : null)
-                .adresse(activite.getAdresse())
-                .telephone(activite.getTelephone())
-                .horairesOuverture(activite.getHorairesOuverture())
-                .siteInternet(activite.getSiteInternet())
-                .jour(activite.getJour())
-                .ordre(activite.getOrdre())
-                .guideId(activite.getGuide() != null ? activite.getGuide().getId() : null)
-                .build();
+            .id(activite.getId())
+            .titre(activite.getTitre())
+            .description(activite.getDescription())
+            .categorie(activite.getCategorie() != null ? activite.getCategorie().name() : null)
+            .adresse(activite.getAdresse())
+            .telephone(activite.getTelephone())
+            .horairesOuverture(activite.getHorairesOuverture())
+            .siteInternet(activite.getSiteInternet())
+            .build();
     }
 
     public static Activite toEntity(ActiviteDto dto) {
@@ -42,9 +39,7 @@ public class ActiviteMapper {
         activite.setTelephone(dto.getTelephone());
         activite.setHorairesOuverture(dto.getHorairesOuverture());
         activite.setSiteInternet(dto.getSiteInternet());
-        activite.setJour(dto.getJour());
-        activite.setOrdre(dto.getOrdre());
-        // Pour guideId, il faudra gérer l'association dans le service
         return activite;
+        
     }
 }

@@ -1,5 +1,9 @@
 package com.hws.travel.entity;
 
+import java.util.Set;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+
 import com.hws.travel.entity.enums.ActiviteCategorie;
 
 import jakarta.persistence.Entity;
@@ -8,8 +12,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.*;
 
 @Entity
@@ -33,10 +35,6 @@ public class Activite {
     private String horairesOuverture;
     private String siteInternet;
 
-    private int jour; // numéro du jour dans le guide
-    private int ordre; // ordre de visite dans le jour
-
-    @ManyToOne
-    @JoinColumn(name = "guide_id")
-    private Guide guide;
+    @OneToMany(mappedBy = "activite", cascade = CascadeType.ALL)
+    private Set<GuideActivite> guideActivites;
 }
