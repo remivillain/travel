@@ -78,3 +78,122 @@ body {
 	transform: none !important;
 }
 
+/* Animation de navigation vers le détail d'un guide */
+.guide-card-click {
+	animation: guideCardClick 0.15s ease-out;
+}
+
+@keyframes guideCardClick {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(0.98);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* Animation de fade pour les transitions de route */
+.route-animation {
+	animation: routeFadeIn 0.4s ease-out;
+}
+
+@keyframes routeFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Animation du bonhomme à vélo */
+.bike-loader {
+	position: relative;
+	width: 120px;
+	height: 80px;
+	margin: 0 auto;
+}
+
+.bike-body {
+	position: absolute;
+	top: 20px;
+	left: 40px;
+	width: 40px;
+	height: 30px;
+	animation: bikeRide 1.5s ease-in-out infinite;
+}
+
+.bike-wheels {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 20px;
+}
+
+.wheel {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #3b82f6;
+	border-radius: 50%;
+	animation: wheelSpin 0.8s linear infinite;
+}
+
+.wheel-front {
+	right: 10px;
+}
+
+.wheel-back {
+	left: 10px;
+}
+
+.bike-frame {
+	position: absolute;
+	top: 25px;
+	left: 20px;
+	width: 80px;
+	height: 2px;
+	background: #3b82f6;
+	transform-origin: left center;
+	animation: frameMove 1.5s ease-in-out infinite;
+}
+
+@keyframes bikeRide {
+	0%, 100% {
+		transform: translateY(0px) rotate(0deg);
+	}
+	25% {
+		transform: translateY(-2px) rotate(-1deg);
+	}
+	50% {
+		transform: translateY(0px) rotate(0deg);
+	}
+	75% {
+		transform: translateY(-1px) rotate(1deg);
+	}
+}
+
+@keyframes wheelSpin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes frameMove {
+	0%, 100% {
+		transform: scaleX(1);
+	}
+	50% {
+		transform: scaleX(1.02);
+	}
+}
+

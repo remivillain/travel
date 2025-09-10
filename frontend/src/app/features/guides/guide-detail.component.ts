@@ -6,12 +6,13 @@ import { GuideService } from '../../core/services/guide.service';
 import { Guide } from '../../core/models/guide.model';
 import { GuideActivite } from '../../core/models/guide-activite.model';
 import { formatEnum } from '../../core/utils/utils-enum-format';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner.component';
 
 import { ActivityListComponent } from '../activities/activity-list.component';
 @Component({
   selector: 'app-guide-detail',
   standalone: true,
-  imports: [CommonModule, ActivityListComponent],
+  imports: [CommonModule, ActivityListComponent, LoadingSpinnerComponent],
   templateUrl: './guide-detail.component.html',
   styleUrls: ['./guide-detail.component.css']
 })

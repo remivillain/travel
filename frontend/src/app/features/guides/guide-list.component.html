@@ -1,4 +1,4 @@
-<div class="min-h-screen">
+<div class="min-h-screen route-animation">
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Search and Filters -->
@@ -92,9 +92,7 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="loading()" class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
+    <app-loading-spinner *ngIf="loading()" message="Chargement des guides..."></app-loading-spinner>
 
     <!-- Error State -->
     <div *ngIf="error()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
@@ -113,7 +111,7 @@
     <div *ngIf="!loading() && !error() && filteredGuides().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
         *ngFor="let guide of filteredGuides(); trackBy: trackByGuide"
-        (click)="openGuide(guide)"
+        (click)="openGuide(guide, $event)"
         class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
       >
         <!-- Guide Image placeholder -->

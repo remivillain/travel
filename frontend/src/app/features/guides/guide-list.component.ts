@@ -9,11 +9,12 @@ import { GuideFilters } from '../../core/models/guide-filter.model';
 import { Guide } from '../../core/models/guide.model';
 import { formatEnum } from '../../core/utils/utils-enum-format';
 import { EnumService } from '../../core/services/enum.service';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner.component';
 
 @Component({
   selector: 'app-guide-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
   templateUrl: './guide-list.component.html',
   styleUrls: ['./guide-list.component.css']
   
@@ -163,8 +164,19 @@ export class GuideListComponent implements OnInit {
     // Le filtrage se fait automatiquement via computed signal
   }
 
-  openGuide(guide: Guide) {
-    this.router.navigate(['/guides', guide.id]);
+  openGuide(guide: Guide, event?: Event) {
+    // Ajouter l'animation de clic
+    if (event) {
+      const target = (event.currentTarget as HTMLElement);
+      target.classList.add('guide-card-click');
+      
+      // Délai pour laisser l'animation se jouer avant la navigation
+      setTimeout(() => {
+        this.router.navigate(['/guides', guide.id]);
+      }, 150);
+    } else {
+      this.router.navigate(['/guides', guide.id]);
+    }
   }
 
   getGuideOptions(guide: Guide): string[] {
