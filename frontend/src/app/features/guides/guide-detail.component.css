@@ -1,0 +1,76 @@
+/* Animation pour sélection de jour */
+.day-button {
+	padding: 0.5rem 1rem;
+	border-radius: 0.5rem;
+	font-weight: 500;
+	transition: all 0.3s ease-in-out;
+	transform: scale(1);
+	border: none;
+	cursor: pointer;
+}
+
+.day-button:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.day-button.selected {
+	background: #2563eb;
+	color: #fff;
+	transform: scale(1.05);
+	box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.day-button:not(.selected) {
+	background: #f3f4f6;
+	color: #374151;
+}
+
+.day-button:not(.selected):hover {
+	background: #3b82f6;
+	color: #fff;
+}
+
+/* Animation pour les activités */
+.activities-container {
+	overflow: hidden;
+}
+
+.activity-enter {
+	animation: slideInFromTop 0.5s ease-out forwards;
+	opacity: 0;
+	transform: translateY(-20px);
+}
+
+.activity-leave {
+	animation: slideOutToTop 0.3s ease-in forwards;
+}
+
+@keyframes slideInFromTop {
+	from {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideOutToTop {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-20px);
+	}
+}
+
+/* Animation échelonnée pour les activités multiples */
+.activity-enter:nth-child(1) { animation-delay: 0.1s; }
+.activity-enter:nth-child(2) { animation-delay: 0.2s; }
+.activity-enter:nth-child(3) { animation-delay: 0.3s; }
+.activity-enter:nth-child(4) { animation-delay: 0.4s; }
+.activity-enter:nth-child(5) { animation-delay: 0.5s; }

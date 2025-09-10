@@ -31,9 +31,9 @@ export class GuideListComponent implements OnInit {
 
   searchTerm = '';
   filters: GuideFilters = {
-    mobility: '',
-    season: '',
-    audience: ''
+    mobility: [],
+    season: [],
+    audience: []
   };
 
   mobiliteOptions: string[] = [];
@@ -53,21 +53,21 @@ export class GuideListComponent implements OnInit {
     }
 
     // Filters
-    if (this.filters.mobility) {
+    if (this.filters.mobility && this.filters.mobility.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.mobilites?.includes(this.filters.mobility!)
+        guide.mobilites?.some(mobility => this.filters.mobility!.includes(mobility))
       );
     }
 
-    if (this.filters.season) {
+    if (this.filters.season && this.filters.season.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.saisons?.includes(this.filters.season!)
+        guide.saisons?.some(season => this.filters.season!.includes(season))
       );
     }
 
-    if (this.filters.audience) {
+    if (this.filters.audience && this.filters.audience.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.pourQui?.includes(this.filters.audience!)
+        guide.pourQui?.some(audience => this.filters.audience!.includes(audience))
       );
     }
 
@@ -106,7 +106,53 @@ export class GuideListComponent implements OnInit {
   }
 
   applyFilters() {
-    // Triggers computed signal update
+    // Triggers computed signal update - filteredGuides will automatically recalculate
+  }
+
+  toggleFilter(filterType: keyof GuideFilters, value: string) {
+    const filter = this.filters[filterType];
+    if (!filter) return;
+
+    const index = filter.indexOf(value);
+    if (index === -1) {
+      filter.push(value);
+    } else {
+      filter.splice(index, 1);
+    }
+    // Filtrage automatique via computed signal
+  }
+
+  isFilterSelected(filterType: keyof GuideFilters, value: string): boolean {
+    const filter = this.filters[filterType];
+    return filter ? filter.includes(value) : false;
+  }
+
+  getSelectedCount(filterType: keyof GuideFilters): number {
+    const filter = this.filters[filterType];
+    return filter ? filter.length : 0;
+  }
+
+  getFilterButtonClass(isSelected: boolean): string {
+    return isSelected 
+      ? 'btn-primary px-3 py-1 rounded-full text-xs font-medium transition-colors' 
+      : 'px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors';
+  }
+
+  hasActiveFilters(): boolean {
+    return this.getSelectedCount('mobility') > 0 || 
+           this.getSelectedCount('season') > 0 || 
+           this.getSelectedCount('audience') > 0;
+  }
+
+  clearAllFilters() {
+    this.filters.mobility = [];
+    this.filters.season = [];
+    this.filters.audience = [];
+  }
+
+  onSearchChange(event: any) {
+    this.searchTerm = event.target.value;
+    // Le filtrage se fait automatiquement via computed signal
   }
 
   openGuide(guide: Guide) {

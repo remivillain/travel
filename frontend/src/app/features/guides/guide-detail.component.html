@@ -1,11 +1,9 @@
-<div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+<div class="min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
         <button 
             (click)="goBack()"
-            class="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+            class="btn-link-style flex items-center space-x-2"
         >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -15,8 +13,6 @@
 
         
         </div>
-    </div>
-    </header>
 
     <!-- Loading State -->
     <div *ngIf="loading()" class="flex justify-center items-center py-12">
@@ -25,7 +21,7 @@
 
     <!-- Error State -->
     <div *ngIf="error()" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div class="card bg-red-50 border border-red-200 p-4">
         <div class="flex">
         <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -41,11 +37,11 @@
     <!-- Guide Content -->
     <div *ngIf="!loading() && !error() && guide()" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Guide Header -->
-    <div class="bg-white rounded-xl shadow-sm mb-8 overflow-hidden">
+    <div class="card mb-8 overflow-hidden">
         <div class="h-64 bg-gradient-to-r from-blue-500 to-purple-600 relative">
         <div class="absolute inset-0 bg-black bg-opacity-30"></div>
         <div class="absolute bottom-6 left-6 text-white">
-            <h1 class="text-3xl font-bold mb-2">{{ guide()!.titre }}</h1>
+            <h1 class="text-title-h1">{{ guide()!.titre }}</h1>
             <div class="flex items-center space-x-4 text-sm opacity-90">
             <span class="flex items-center">
                 <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,17 +60,17 @@
         </div>
         </div>
 
-        <div class="p-6">
-        <p class="text-gray-700 mb-6">{{ guide()!.description }}</p>
+    <div class="p-6">
+    <p class="text-muted mb-6">{{ guide()!.description }}</p>
         
         <!-- Options -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div *ngIf="guide()!.mobilites?.length">
-            <h3 class="text-sm font-medium text-gray-500 mb-2">MOBILITÉ</h3>
+            <h3 class="text-title-h3">MOBILITÉ</h3>
             <div class="flex flex-wrap gap-2">
                 <span 
                 *ngFor="let option of guide()!.mobilites"
-                class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full"
+                class="badge"
                 >
                 {{ formatEnum(option) }}
                 </span>
@@ -82,11 +78,11 @@
             </div>
 
             <div *ngIf="guide()!.saisons?.length">
-            <h3 class="text-sm font-medium text-gray-500 mb-2">SAISON</h3>
+            <h3 class="text-title-h3">SAISON</h3>
             <div class="flex flex-wrap gap-2">
                 <span 
                 *ngFor="let option of guide()!.saisons"
-                class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full"
+                class="badge"
                 >
                 {{ formatEnum(option) }}
                 </span>
@@ -94,11 +90,11 @@
             </div>
 
             <div *ngIf="guide()!.pourQui?.length">
-            <h3 class="text-sm font-medium text-gray-500 mb-2">POUR QUI</h3>
+            <h3 class="text-title-h3">POUR QUI</h3>
             <div class="flex flex-wrap gap-2">
                 <span 
                 *ngFor="let option of guide()!.pourQui"
-                class="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
+                class="badge"
                 >
                 {{ formatEnum(option) }}
                 </span>
@@ -114,22 +110,16 @@
         <div class="flex flex-wrap gap-2">
         <button
             *ngFor="let day of getDaysList(); let i = index"
-            (click)="selectedDay.set(i + 1)"
-            [class.bg-blue-600]="selectedDay() === i + 1"
-            [class.text-white]="selectedDay() === i + 1"
-            [class.bg-gray-100]="selectedDay() !== i + 1"
-            [class.text-gray-700]="selectedDay() !== i + 1"
-            class="px-4 py-2 rounded-lg font-medium transition-colors hover:bg-blue-500 hover:text-white"
+            (click)="onDaySelect(i + 1)"
+            class="day-button"
+            [class.selected]="selectedDay() === i + 1"
         >
             Jour {{ i + 1 }}
         </button>
         <button
-            (click)="selectedDay.set(0)"
-            [class.bg-blue-600]="selectedDay() === 0"
-            [class.text-white]="selectedDay() === 0"
-            [class.bg-gray-100]="selectedDay() !== 0"
-            [class.text-gray-700]="selectedDay() !== 0"
-            class="px-4 py-2 rounded-lg font-medium transition-colors hover:bg-blue-500 hover:text-white"
+            (click)="onDaySelect(0)"
+            class="day-button"
+            [class.selected]="selectedDay() === 0"
         >
             Tout voir
         </button>
@@ -137,6 +127,8 @@
     </div>
 
     <!-- Activities -->
-    <app-activity-list [activities]="getFilteredActivities()"></app-activity-list>
+    <div class="activities-container">
+        <app-activity-list [activities]="getFilteredActivities()" class="activity-enter"></app-activity-list>
+    </div>
     </div>
 </div>

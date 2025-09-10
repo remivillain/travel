@@ -13,6 +13,7 @@ import { ActivityListComponent } from '../activities/activity-list.component';
   standalone: true,
   imports: [CommonModule, ActivityListComponent],
   templateUrl: './guide-detail.component.html',
+  styleUrls: ['./guide-detail.component.css']
 })
 export class GuideDetailComponent implements OnInit {
   formatEnum = formatEnum;
@@ -66,6 +67,27 @@ export class GuideDetailComponent implements OnInit {
 
     // Sort by order
     return activities.sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  }
+
+  // Trigger animation when day selection changes
+  onDaySelect(day: number) {
+    // Trigger exit animation
+    const container = document.querySelector('.activities-container');
+    if (container) {
+      container.classList.add('activity-leave');
+      
+      setTimeout(() => {
+        this.selectedDay.set(day);
+        container.classList.remove('activity-leave');
+        container.classList.add('activity-enter');
+        
+        setTimeout(() => {
+          container.classList.remove('activity-enter');
+        }, 500);
+      }, 300);
+    } else {
+      this.selectedDay.set(day);
+    }
   }
 
   goBack() {

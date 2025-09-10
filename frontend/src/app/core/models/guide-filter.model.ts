@@ -1,5 +1,5 @@
 export interface GuideFilters {
-  mobility?: string;
-  season?: string;
-  audience?: string;
+  mobility?: string[];
+  season?: string[];
+  audience?: string[];
 }
