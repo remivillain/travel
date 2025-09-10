@@ -1,14 +1,17 @@
 package com.hws.travel.controller;
 
+import org.springframework.http.ResponseEntity;
+
 import com.hws.travel.dto.UserDto;
-import com.hws.travel.entity.User;
-import com.hws.travel.mapper.UserMapper;
+import com.hws.travel.dto.UserCreateDto;
 import com.hws.travel.service.impl.UserServiceImpl;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserServiceImpl userService;
 
@@ -19,21 +22,20 @@ public class UserController {
     @GetMapping
     public List<UserDto> getAllUsers() {
         return userService.getAllUsers().stream()
-            .map(UserMapper::toDto)
             .toList();
     }
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
-            .map(UserMapper::toDto)
             .orElse(null);
     }
 
     @PostMapping
-    public UserDto createUser(@RequestBody UserDto userDto) {
-        User user = UserMapper.toEntity(userDto);
-        return UserMapper.toDto(userService.saveUser(user));
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto userCreateDto) {
+        UserDto userDto = userService.saveUser(userCreateDto);
+        return ResponseEntity.status(201).body(userDto);
     }
 
     @DeleteMapping("/{id}")

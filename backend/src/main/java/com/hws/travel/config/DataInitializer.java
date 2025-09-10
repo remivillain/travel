@@ -4,7 +4,7 @@ import com.hws.travel.entity.User;
 import com.hws.travel.repository.RoleRepository;
 import com.hws.travel.repository.UserRepository;
 
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class DataInitializer implements CommandLineRunner {
             User admin = new User();
             admin.setEmail(adminEmail);
             admin.setPassword(adminPassword);
-            admin.setRoles(Set.of(adminRole));
+            admin.setRoles(List.of(adminRole));
             userRepository.save(admin);
         }
     }
