@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { GuideService } from '../../core/services/guide.service';
+import { NetworkService } from '../../core/services/network.service';
 import { GuideFilters } from '../../core/models/guide-filter.model';
 import { Guide } from '../../core/models/guide.model';
 import { formatEnum } from '../../core/utils/utils-enum-format';
@@ -21,10 +22,12 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 })
 export class GuideListComponent implements OnInit {
   formatEnum = formatEnum;
+  
   private guideService = inject(GuideService);
   private enumService = inject(EnumService);
   public authService = inject(AuthService);
   private router = inject(Router);
+  private networkService = inject(NetworkService);
 
   guides = signal<Guide[]>([]);
   loading = signal(false);
@@ -79,6 +82,19 @@ export class GuideListComponent implements OnInit {
 
   ngOnInit() {
     this.loadGuides();
+    this.loadEnums();
+    
+    // Recharger automatiquement quand la connexion revient
+    this.networkService.isOnline$.subscribe(isOnline => {
+      if (isOnline && this.guides().length === 0) {
+        console.log('🌐 Connexion rétablie - rechargement des guides...');
+        this.loadGuides();
+        this.loadEnums();
+      }
+    });
+  }
+
+  private loadEnums() {
     this.enumService.getMobilites().subscribe({
       next: opts => this.mobiliteOptions = opts,
       error: () => this.mobiliteOptions = []
@@ -102,15 +118,39 @@ export class GuideListComponent implements OnInit {
       const guides = await this.guideService.getUserGuides();
       this.guides.set(guides);
       
+      // Précharger les détails de tous les guides pour le mode hors-ligne
+      // (en arrière-plan, sans bloquer l'interface)
+      this.preloadGuideDetails(guides);
+      
       // Déclencher l'animation après un court délai
       setTimeout(() => {
         this.showGuidesAnimation.set(true);
       }, 100);
     } catch (err: any) {
-      this.error.set('Impossible de charger les guides');
+      // Si on a une erreur mais qu'on est hors-ligne, c'est normal
+      if (!this.networkService.isOnline()) {
+        this.error.set('Aucune donnée disponible hors-ligne. Connectez-vous pour charger les guides.');
+      } else {
+        this.error.set('Impossible de charger les guides. Vérifiez votre connexion.');
+      }
       console.error('Error loading guides:', err);
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async preloadGuideDetails(guides: Guide[]) {
+    // Précharger les détails en arrière-plan pour le mode hors-ligne
+    // On fait cela avec un délai pour ne pas surcharger l'API
+    for (let i = 0; i < guides.length; i++) {
+      setTimeout(async () => {
+        try {
+          await this.guideService.getGuide(guides[i].id);
+          console.log(`📦 Guide ${guides[i].id} préchargé en cache`);
+        } catch (error) {
+          console.warn(`⚠️ Impossible de précharger le guide ${guides[i].id}:`, error);
+        }
+      }, i * 200); // 200ms entre chaque préchargement
     }
   }
 

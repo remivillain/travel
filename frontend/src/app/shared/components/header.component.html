@@ -6,6 +6,17 @@
         <h1 class="text-title">Travel</h1>
       </div>
       <div class="flex items-center space-x-4">
+        <!-- Indicateur de statut réseau -->
+        <div class="flex items-center space-x-1">
+          <div class="w-2 h-2 rounded-full" 
+               [class.bg-green-500]="networkService.isOnline()" 
+               [class.bg-red-500]="!networkService.isOnline()">
+          </div>
+          <span class="text-xs text-gray-500">
+            {{ networkService.isOnline() ? 'En ligne' : 'Hors-ligne' }}
+          </span>
+        </div>
+        
         <span class="text-muted text-sm">{{ userEmail }}</span>
         <button 
           (click)="onLogout()"
