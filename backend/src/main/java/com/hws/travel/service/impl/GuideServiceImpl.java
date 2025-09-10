@@ -16,6 +16,7 @@ import com.hws.travel.entity.enums.PourQui;
 import com.hws.travel.entity.enums.Saison;
 import com.hws.travel.dto.GuideDto;
 import com.hws.travel.dto.GuideUpdateDto;
+import com.hws.travel.dto.GuideActiviteCreateDto;
 import com.hws.travel.mapper.GuideMapper;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -134,6 +135,83 @@ public class GuideServiceImpl implements GuideService {
         return guideRepository.findGuidesByInvitedUserId(userId).stream()
             .map(com.hws.travel.mapper.GuideMapper::toDto)
             .toList();
+    }
+
+    @Override
+    public GuideDto addActivityToGuide(Long guideId, GuideActiviteCreateDto guideActiviteCreateDto) {
+        // Vérifier que le guide existe
+        Guide guide = guideRepository.findById(guideId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
+
+        // Vérifier l'unicité (jour, ordre) pour éviter les conflits
+        boolean conflictExists = guide.getGuideActivites().stream()
+            .anyMatch(ga -> ga.getJour() == guideActiviteCreateDto.getJour() 
+                         && ga.getOrdre() == guideActiviteCreateDto.getOrdre());
+        
+        if (conflictExists) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Il existe déjà une activité avec cet ordre pour le jour " + guideActiviteCreateDto.getJour());
+        }
+
+        // Créer et ajouter la nouvelle activité
+        GuideActivite guideActivite = new GuideActivite();
+        guideActivite.setGuide(guide);
+        guideActivite.setJour(guideActiviteCreateDto.getJour());
+        guideActivite.setOrdre(guideActiviteCreateDto.getOrdre());
+        
+        if (guideActiviteCreateDto.getActiviteId() != null) {
+            Activite activite = activiteRepository.findById(guideActiviteCreateDto.getActiviteId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Activité non trouvée: " + guideActiviteCreateDto.getActiviteId()));
+            guideActivite.setActivite(activite);
+        }
+
+        guide.getGuideActivites().add(guideActivite);
+        Guide savedGuide = guideRepository.save(guide);
+        
+        return GuideMapper.toDto(savedGuide);
+    }
+
+    @Override
+    public GuideDto addActivitiesToGuide(Long guideId, List<GuideActiviteCreateDto> guideActivites) {
+        // Vérifier que le guide existe
+        Guide guide = guideRepository.findById(guideId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
+
+        // Vérifier l'unicité des nouvelles activités entre elles et avec les existantes
+        List<String> existingKeys = guide.getGuideActivites().stream()
+            .map(ga -> ga.getJour() + ":" + ga.getOrdre())
+            .collect(Collectors.toList());
+        
+        List<String> newKeys = new ArrayList<>();
+        for (GuideActiviteCreateDto dto : guideActivites) {
+            String key = dto.getJour() + ":" + dto.getOrdre();
+            if (existingKeys.contains(key) || newKeys.contains(key)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Conflit détecté : jour=" + dto.getJour() + ", ordre=" + dto.getOrdre());
+            }
+            newKeys.add(key);
+        }
+
+        // Créer et ajouter toutes les nouvelles activités
+        for (GuideActiviteCreateDto dto : guideActivites) {
+            GuideActivite guideActivite = new GuideActivite();
+            guideActivite.setGuide(guide);
+            guideActivite.setJour(dto.getJour());
+            guideActivite.setOrdre(dto.getOrdre());
+            
+            if (dto.getActiviteId() != null) {
+                Activite activite = activiteRepository.findById(dto.getActiviteId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Activité non trouvée: " + dto.getActiviteId()));
+                guideActivite.setActivite(activite);
+            }
+
+            guide.getGuideActivites().add(guideActivite);
+        }
+
+        Guide savedGuide = guideRepository.save(guide);
+        return GuideMapper.toDto(savedGuide);
     }
 
     private void validateGuideDto(Object dto) {
@@ -307,8 +385,22 @@ public class GuideServiceImpl implements GuideService {
         log.debug("InvitedUsers set: {}", invitedUsers);
     }
 
+    @Override
+    public GuideDto removeActivityFromGuide(Long guideId, Long activityId) {
+        // Vérifier que le guide existe
+        Guide guide = guideRepository.findById(guideId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
 
-  
+        // Trouver et supprimer l'activité par ID
+        boolean removed = guide.getGuideActivites().removeIf(ga -> 
+            ga.getId().equals(activityId));
+        
+        if (!removed) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Aucune activité trouvée avec l'ID " + activityId);
+        }
 
-   
+        Guide savedGuide = guideRepository.save(guide);
+        return GuideMapper.toDto(savedGuide);
+    }
 }

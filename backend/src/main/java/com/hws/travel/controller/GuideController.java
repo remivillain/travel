@@ -3,6 +3,7 @@ package com.hws.travel.controller;
 import com.hws.travel.dto.GuideCreateDto;
 import com.hws.travel.dto.GuideDto;
 import com.hws.travel.dto.GuideUpdateDto;
+import com.hws.travel.dto.GuideActiviteCreateDto;
 import com.hws.travel.service.UserService;
 import com.hws.travel.service.impl.GuideServiceImpl;
 
@@ -61,5 +62,26 @@ public class GuideController {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteGuide(@PathVariable Long id) {
         guideService.deleteGuide(id);
+    }
+
+    @PostMapping("/{id}/activities")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto addActivityToGuide(@PathVariable Long id, 
+                                      @RequestBody GuideActiviteCreateDto guideActiviteCreateDto) {
+        return guideService.addActivityToGuide(id, guideActiviteCreateDto);
+    }
+
+    @PostMapping("/{id}/activities/batch")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto addActivitiesToGuide(@PathVariable Long id,
+                                        @RequestBody List<GuideActiviteCreateDto> guideActivites) {
+        return guideService.addActivitiesToGuide(id, guideActivites);
+    }
+
+    @DeleteMapping("/{id}/activities/{activityId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto removeActivityFromGuide(@PathVariable Long id,
+                                           @PathVariable Long activityId) {
+        return guideService.removeActivityFromGuide(id, activityId);
     }
 }
