@@ -36,6 +36,13 @@ public class ActiviteController {
         return activiteService.saveActivite(activiteDto);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ActiviteDto updateActivite(@PathVariable Long id, @RequestBody ActiviteDto activiteDto) {
+        activiteDto.setId(id);
+        return activiteService.saveActivite(activiteDto);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteActivite(@PathVariable Long id) {

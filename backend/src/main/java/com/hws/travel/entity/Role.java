@@ -9,6 +9,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "users")
 @Table(name = "roles")
 public class Role {
     @Id

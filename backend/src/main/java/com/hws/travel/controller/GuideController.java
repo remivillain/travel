@@ -2,6 +2,7 @@ package com.hws.travel.controller;
 
 import com.hws.travel.dto.GuideCreateDto;
 import com.hws.travel.dto.GuideDto;
+import com.hws.travel.dto.GuideUpdateDto;
 import com.hws.travel.service.impl.GuideServiceImpl;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/guides")
 public class GuideController {
+    
     private final GuideServiceImpl guideService;
 
     public GuideController(GuideServiceImpl guideService) {
@@ -36,6 +38,12 @@ public class GuideController {
         return guideService.saveGuide(guideCreateDto);
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto updateGuide(@PathVariable Long id, @RequestBody GuideUpdateDto guideUpdateDto) {
+        return guideService.updateGuide(id, guideUpdateDto);
+    }
+    
     @DeleteMapping("/{id}")
     public void deleteGuide(@PathVariable Long id) {
         guideService.deleteGuide(id);

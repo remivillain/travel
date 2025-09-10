@@ -1,3 +1,4 @@
+
 package com.hws.travel.service.impl;
 
 import com.hws.travel.entity.Guide;
@@ -37,11 +38,26 @@ public class ActiviteServiceImpl implements ActiviteService {
 
     @Override
     public ActiviteDto saveActivite(ActiviteDto activiteDto) {
-    validateActiviteCategorie(activiteDto.getCategorie());
-    Activite activite = ActiviteMapper.toEntity(activiteDto);
-    Activite saved = activiteRepository.save(activite);
-    return ActiviteMapper.toDto(saved);
+        validateActiviteCategorie(activiteDto.getCategorie());
+        Activite activite;
+        if (activiteDto.getId() != null) {
+            activite = activiteRepository.findById(activiteDto.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Activité non trouvée"));
+            // Mise à jour des champs
+            if (activiteDto.getTitre() != null) activite.setTitre(activiteDto.getTitre());
+            if (activiteDto.getDescription() != null) activite.setDescription(activiteDto.getDescription());
+            if (activiteDto.getCategorie() != null) activite.setCategorie(com.hws.travel.entity.enums.ActiviteCategorie.valueOf(activiteDto.getCategorie()));
+            if (activiteDto.getAdresse() != null) activite.setAdresse(activiteDto.getAdresse());
+            if (activiteDto.getTelephone() != null) activite.setTelephone(activiteDto.getTelephone());
+            if (activiteDto.getHorairesOuverture() != null) activite.setHorairesOuverture(activiteDto.getHorairesOuverture());
+            if (activiteDto.getSiteInternet() != null) activite.setSiteInternet(activiteDto.getSiteInternet());
+        } else {
+            activite = ActiviteMapper.toEntity(activiteDto);
+        }
+        Activite saved = activiteRepository.save(activite);
+        return ActiviteMapper.toDto(saved);
     }
+
 
     @Override
     public void deleteActivite(Long id) {

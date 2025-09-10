@@ -22,6 +22,7 @@ import jakarta.persistence.Table;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = "roles")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

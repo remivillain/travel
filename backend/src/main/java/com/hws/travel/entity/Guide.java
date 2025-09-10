@@ -23,11 +23,12 @@ import jakarta.persistence.OneToMany;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "guideActivites") 
-@EqualsAndHashCode(exclude = "guideActivites")
+@ToString(exclude = {"guideActivites", "invitedUsers"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Guide {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String titre;
@@ -51,7 +52,7 @@ public class Guide {
     )
     private Set<User> invitedUsers;
 
-    @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GuideActivite> guideActivites;
 
 }
