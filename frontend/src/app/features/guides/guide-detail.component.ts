@@ -72,22 +72,35 @@ export class GuideDetailComponent implements OnInit {
 
   // Trigger animation when day selection changes
   onDaySelect(day: number) {
+    // Sauvegarder la position de scroll actuelle
+    const scrollPosition = window.scrollY;
+    
     // Trigger exit animation
     const container = document.querySelector('.activities-container');
     if (container) {
       container.classList.add('activity-leave');
       
       setTimeout(() => {
+        // Changer le jour sélectionné
         this.selectedDay.set(day);
-        container.classList.remove('activity-leave');
-        container.classList.add('activity-enter');
         
-        setTimeout(() => {
-          container.classList.remove('activity-enter');
-        }, 500);
-      }, 300);
+        // Maintenir la position de scroll et ajouter l'animation d'entrée
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+          container.classList.remove('activity-leave');
+          container.classList.add('activity-enter');
+          
+          setTimeout(() => {
+            container.classList.remove('activity-enter');
+          }, 450); // Correspond à l'animation + délais échelonnés
+        });
+      }, 250); // Durée réduite pour la sortie
     } else {
+      // Fallback sans animation
       this.selectedDay.set(day);
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollPosition, behavior: 'auto' });
+      });
     }
   }
 
