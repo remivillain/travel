@@ -112,15 +112,15 @@
           <div class="mb-4">
             <div class="flex flex-wrap gap-2 mb-2">
               <span class="font-semibold text-blue-700">Mobilité :</span>
-              <span *ngFor="let mob of guide.mobilites" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">{{ mob }}</span>
+              <span *ngFor="let mob of guide.mobilites" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">{{ formatEnum(mob) }}</span>
             </div>
             <div class="flex flex-wrap gap-2 mb-2">
               <span class="font-semibold text-green-700">Saison :</span>
-              <span *ngFor="let saison of guide.saisons" class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">{{ saison }}</span>
+              <span *ngFor="let saison of guide.saisons" class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">{{ formatEnum(saison) }}</span>
             </div>
             <div class="flex flex-wrap gap-2 mb-2">
               <span class="font-semibold text-purple-700">Pour qui :</span>
-              <span *ngFor="let audience of guide.pourQui" class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">{{ audience }}</span>
+              <span *ngFor="let audience of guide.pourQui" class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">{{ formatEnum(audience) }}</span>
             </div>
           </div>
 
