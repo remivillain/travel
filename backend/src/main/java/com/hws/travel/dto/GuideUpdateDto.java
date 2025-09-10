@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import java.util.Set;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,9 +15,9 @@ public class GuideUpdateDto {
     private String titre;
     private String description;
     private Integer nombreJours;
-    private Set<String> mobilites;
-    private Set<String> saisons;
-    private Set<String> pourQui;
-    private Set<GuideActiviteCreateDto> guideActivites;
-    private Set<Long> invitedUserIds;
+    private List<String> mobilites;
+    private List<String> saisons;
+    private List<String> pourQui;
+    private List<GuideActiviteCreateDto> guideActivites;
+    private List<Long> invitedUserIds;
 }

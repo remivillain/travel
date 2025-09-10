@@ -3,7 +3,8 @@ package com.hws.travel.entity;
 import jakarta.persistence.Column;
 
 import lombok.*;
-import java.util.Set;
+
+import java.util.List;
 
 import com.hws.travel.entity.enums.Mobilite;
 import com.hws.travel.entity.enums.PourQui;
@@ -47,15 +48,15 @@ public class Guide {
 
     @ElementCollection
     @NotNull
-    private Set<Mobilite> mobilites;
+    private List<Mobilite> mobilites;
 
     @ElementCollection
     @NotNull
-    private Set<Saison> saisons;
+    private List<Saison> saisons;
 
     @ElementCollection
     @NotNull
-    private Set<PourQui> pourQui;
+    private List<PourQui> pourQui;
 
     @ManyToMany
     @JoinTable(
@@ -63,9 +64,9 @@ public class Guide {
         joinColumns = @JoinColumn(name = "guide_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> invitedUsers;
+    private List<User> invitedUsers;
 
     @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GuideActivite> guideActivites;
+    private List<GuideActivite> guideActivites;
 
 }

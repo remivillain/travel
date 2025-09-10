@@ -7,7 +7,6 @@ import com.hws.travel.entity.enums.PourQui;
 import com.hws.travel.entity.enums.Saison;
 import com.hws.travel.dto.GuideDto;
 
-import java.util.stream.Collectors;
 
 public class GuideMapper {
     private GuideMapper() {}
@@ -21,25 +20,25 @@ public class GuideMapper {
             .description(guide.getDescription())
             .nombreJours(guide.getNombreJours())
             .mobilites(guide.getMobilites() != null
-                ? guide.getMobilites().stream().map(Enum::name).collect(Collectors.toSet())
+                ? guide.getMobilites().stream().map(Enum::name).toList()
                 : null)
             .saisons(guide.getSaisons() != null
-                ? guide.getSaisons().stream().map(Enum::name).collect(Collectors.toSet())
+                ? guide.getSaisons().stream().map(Enum::name).toList()
                 : null)
             .pourQui(guide.getPourQui() != null
-                ? guide.getPourQui().stream().map(Enum::name).collect(Collectors.toSet())
+                ? guide.getPourQui().stream().map(Enum::name).toList()
                 : null)
 
             // Utilise le mapping complet pour inclure l'activité dans chaque GuideActiviteDto
             .guideActivites(guide.getGuideActivites() != null
                 ? guide.getGuideActivites().stream()
                     .map(GuideActiviteMapper::toDto)
-                    .collect(Collectors.toSet())
+                    .toList()
                 : null)
 
             // ne mapper que les IDs des users invités
             .invitedUserIds(guide.getInvitedUsers() != null
-                ? guide.getInvitedUsers().stream().map(User::getId).collect(Collectors.toSet())
+                ? guide.getInvitedUsers().stream().map(User::getId).toList()
                 : null)
             .build();
     }
@@ -54,13 +53,13 @@ public class GuideMapper {
         guide.setNombreJours(dto.getNombreJours());
 
         if (dto.getMobilites() != null) {
-            guide.setMobilites(dto.getMobilites().stream().map(Mobilite::valueOf).collect(Collectors.toSet()));
+            guide.setMobilites(dto.getMobilites().stream().map(Mobilite::valueOf).toList());
         }
         if (dto.getSaisons() != null) {
-            guide.setSaisons(dto.getSaisons().stream().map(Saison::valueOf).collect(Collectors.toSet()));
+            guide.setSaisons(dto.getSaisons().stream().map(Saison::valueOf).toList());
         }
         if (dto.getPourQui() != null) {
-            guide.setPourQui(dto.getPourQui().stream().map(PourQui::valueOf).collect(Collectors.toSet()));
+            guide.setPourQui(dto.getPourQui().stream().map(PourQui::valueOf).toList());
         }
 
         // guideActivites et invitedUsers -> gérés dans le service

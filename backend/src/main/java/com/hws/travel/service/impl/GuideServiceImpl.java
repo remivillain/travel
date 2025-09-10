@@ -19,12 +19,11 @@ import com.hws.travel.dto.GuideUpdateDto;
 import com.hws.travel.mapper.GuideMapper;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hws.travel.dto.GuideCreateDto;
@@ -170,12 +169,12 @@ public class GuideServiceImpl implements GuideService {
         return guide;
     }
 
-    private Set<Mobilite> mapMobilites(Set<String> mobilites) {
-        if (mobilites == null) return Collections.emptySet();
+    private List<Mobilite> mapMobilites(List<String> mobilites) {
+        if (mobilites == null) return Collections.emptyList();
         try {
             return mobilites.stream()
                 .map(Mobilite::valueOf)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             String invalid = e.getMessage().replace("No enum constant com.hws.travel.entity.enums.Mobilite.", "");
             String validValues = String.join(", ", Arrays.stream(Mobilite.values()).map(Enum::name).toList());
@@ -183,12 +182,12 @@ public class GuideServiceImpl implements GuideService {
         }
     }
     
-    private Set<Saison> mapSaisons(Set<String> saisons) {
-        if (saisons == null) return Collections.emptySet();
+    private List<Saison> mapSaisons(List<String> saisons) {
+        if (saisons == null) return Collections.emptyList();
         try {
             return saisons.stream()
                 .map(Saison::valueOf)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             String invalid = e.getMessage().replace("No enum constant com.hws.travel.entity.enums.Saison.", "");
             String validValues = String.join(", ", Arrays.stream(Saison.values()).map(Enum::name).toList());
@@ -196,12 +195,12 @@ public class GuideServiceImpl implements GuideService {
         }
     }
     
-    private Set<PourQui> mapPourQui(Set<String> pourQui) {
-        if (pourQui == null) return Collections.emptySet();
+    private List<PourQui> mapPourQui(List<String> pourQui) {
+        if (pourQui == null) return Collections.emptyList();
         try {
             return pourQui.stream()
                 .map(PourQui::valueOf)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         } catch (IllegalArgumentException e) {
             String invalid = e.getMessage().replace("No enum constant com.hws.travel.entity.enums.PourQui.", "");
             String validValues = String.join(", ", Arrays.stream(PourQui.values()).map(Enum::name).toList());
@@ -211,7 +210,7 @@ public class GuideServiceImpl implements GuideService {
 
     private void setGuideActivites(Guide guide, Object dto) {
         log.debug("setGuideActivites called for guideId={} with dto={}", guide.getId(), dto);
-        Set<?> guideActivitesRaw = null;
+        List<?> guideActivitesRaw = null;
         if (dto instanceof GuideCreateDto guideCreateDto) {
             guideActivitesRaw = guideCreateDto.getGuideActivites();
         } else if (dto instanceof GuideUpdateDto guideUpdateDto) {
@@ -225,16 +224,17 @@ public class GuideServiceImpl implements GuideService {
         }
 
         // Vérification unicité (jour, ordre)
-        Set<String> jourOrdreSet = new HashSet<>();
-        Set<GuideActivite> guideActivites = new HashSet<>();
+        List<String> jourOrdreList = new ArrayList<>();
+        List<GuideActivite> guideActivites = new ArrayList<>();
         for (Object o : guideActivitesRaw) {
             var activiteDto = (com.hws.travel.dto.GuideActiviteCreateDto) o;
             String key = activiteDto.getJour() + ":" + activiteDto.getOrdre();
-            if (!jourOrdreSet.add(key)) {
+            if (jourOrdreList.contains(key)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Il ne peut pas y avoir deux activités avec le même ordre pour le même jour (jour=" 
                     + activiteDto.getJour() + ", ordre=" + activiteDto.getOrdre() + ").");
             }
+            jourOrdreList.add(key);
 
             GuideActivite entity = new GuideActivite();
             entity.setGuide(guide);
@@ -248,19 +248,20 @@ public class GuideServiceImpl implements GuideService {
             }
             guideActivites.add(entity);
         }
+        log.info("GuideActivites -------- {}", guideActivites);
+        log.info("getGuideActivites -------- {}", guide.getGuideActivites());
 
         if (guide.getGuideActivites() == null) {
-            guide.setGuideActivites(new HashSet<>());
+            guide.setGuideActivites(new ArrayList<>());
         } else {
             guide.getGuideActivites().clear();
         }
         guide.getGuideActivites().addAll(guideActivites);
-        log.debug("GuideActivites set: {}", guide.getGuideActivites());
     }
 
     private void setInvitedUsers(Guide guide, Object dto) {
         log.debug("setInvitedUsers called for guideId={} with dto={}", guide.getId(), dto);
-        Set<Long> userIds = null;
+        List<Long> userIds = null;
         if (dto instanceof GuideCreateDto guideCreateDto) {
             userIds = guideCreateDto.getInvitedUserIds();
         } else if (dto instanceof GuideUpdateDto guideUpdateDto) {
@@ -274,14 +275,14 @@ public class GuideServiceImpl implements GuideService {
             return;
         }
 
-        Set<User> invitedUsers = userIds.stream()
+        List<User> invitedUsers = userIds.stream()
             .map(id -> userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Utilisateur invité non trouvé: " + id)))
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
 
         if (guide.getInvitedUsers() == null) {
-            guide.setInvitedUsers(new HashSet<>());
+            guide.setInvitedUsers(new ArrayList<>());
         } else {
             guide.getInvitedUsers().clear();
         }
