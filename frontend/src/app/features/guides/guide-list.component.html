@@ -1,0 +1,155 @@
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl font-bold text-gray-900">Henri Trip</h1>
+          <span class="text-sm text-gray-500">Mes Guides</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-600">{{ authService.currentUser()?.email }}</span>
+          <button 
+            (click)="logout()"
+            class="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Search Bar -->
+        <div class="flex-1">
+          <div class="relative">
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="applyFilters()"
+              placeholder="Rechercher un guide..."
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            >
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <select 
+            [(ngModel)]="filters.mobility"
+            (ngModelChange)="applyFilters()"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="">Toutes mobilités</option>
+            <option value="voiture">Voiture</option>
+            <option value="vélo">Vélo</option>
+            <option value="à pied">À pied</option>
+            <option value="moto">Moto</option>
+          </select>
+
+          <select 
+            [(ngModel)]="filters.season"
+            (ngModelChange)="applyFilters()"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="">Toutes saisons</option>
+            <option value="été">Été</option>
+            <option value="printemps">Printemps</option>
+            <option value="automne">Automne</option>
+            <option value="hiver">Hiver</option>
+          </select>
+
+          <select 
+            [(ngModel)]="filters.audience"
+            (ngModelChange)="applyFilters()"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+          >
+            <option value="">Toutes audiences</option>
+            <option value="famille">Famille</option>
+            <option value="seul">Seul</option>
+            <option value="en groupe">En groupe</option>
+            <option value="entre amis">Entre amis</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error()" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Erreur de chargement</h3>
+          <p class="text-sm text-red-700 mt-1">{{ error() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guides Grid -->
+    <div *ngIf="!loading() && !error()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        *ngFor="let guide of filteredGuides(); trackBy: trackByGuide"
+        (click)="openGuide(guide)"
+        class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+      >
+        <!-- Guide Image placeholder -->
+        <div class="h-48 bg-gradient-to-r from-blue-400 to-purple-500 rounded-t-xl relative">
+          <div class="absolute inset-0 bg-black bg-opacity-20 rounded-t-xl"></div>
+          <div class="absolute bottom-4 left-4 text-white">
+            <h3 class="text-xl font-bold">{{ guide.title }}</h3>
+            <p class="text-sm opacity-90">{{ guide.days }} jour{{ guide.days > 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ guide.description }}</p>
+          
+          <!-- Options Tags -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span 
+              *ngFor="let option of getGuideOptions(guide)"
+              class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+            >
+              {{ option }}
+            </span>
+          </div>
+
+          <!-- Activities count -->
+          <div class="flex items-center justify-between text-sm text-gray-500">
+            <span class="flex items-center">
+              <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              {{ guide.activities?.length || 0 }} activités
+            </span>
+            <span class="text-blue-600 font-medium">Voir le guide →</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && !error() && filteredGuides().length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun guide trouvé</h3>
+      <p class="mt-1 text-sm text-gray-500">Essayez de modifier vos critères de recherche.</p>
+    </div>
+  </div>
+</div>
