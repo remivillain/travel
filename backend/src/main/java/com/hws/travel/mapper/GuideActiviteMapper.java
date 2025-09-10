@@ -14,7 +14,9 @@ public class GuideActiviteMapper {
             .jour(entity.getJour())
             .ordre(entity.getOrdre())
             .activiteId(entity.getActivite() != null ? entity.getActivite().getId() : null)
-            .guideId(entity.getGuide() != null ? entity.getGuide().getId() : null) // ⚠️ ID uniquement
+            .guideId(entity.getGuide() != null ? entity.getGuide().getId() : null)
+            .activite(entity.getActivite() != null ? 
+            ActiviteMapper.toDto(entity.getActivite()) : null)
             .build();
     }
 

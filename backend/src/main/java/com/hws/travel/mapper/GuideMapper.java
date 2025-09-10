@@ -30,14 +30,14 @@ public class GuideMapper {
                 ? guide.getPourQui().stream().map(Enum::name).collect(Collectors.toSet())
                 : null)
 
-            // ⚡ mapper uniquement des DTO "light" pour éviter les cycles
+            // Utilise le mapping complet pour inclure l'activité dans chaque GuideActiviteDto
             .guideActivites(guide.getGuideActivites() != null
                 ? guide.getGuideActivites().stream()
-                    .map(ga -> GuideActiviteMapper.toLightDto(ga)) // version sans le Guide complet
+                    .map(GuideActiviteMapper::toDto)
                     .collect(Collectors.toSet())
                 : null)
 
-            // ⚡ ne mapper que les IDs des users invités
+            // ne mapper que les IDs des users invités
             .invitedUserIds(guide.getInvitedUsers() != null
                 ? guide.getInvitedUsers().stream().map(User::getId).collect(Collectors.toSet())
                 : null)
@@ -63,7 +63,7 @@ public class GuideMapper {
             guide.setPourQui(dto.getPourQui().stream().map(PourQui::valueOf).collect(Collectors.toSet()));
         }
 
-        // ⚠️ guideActivites et invitedUsers -> gérés dans le service
+        // guideActivites et invitedUsers -> gérés dans le service
         return guide;
     }
 }

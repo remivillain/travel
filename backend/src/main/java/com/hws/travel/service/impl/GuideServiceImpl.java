@@ -115,6 +115,12 @@ public class GuideServiceImpl implements GuideService {
         }
     }
 
+    public List<GuideDto> getGuidesForUser(Long userId) {
+        return guideRepository.findGuidesByInvitedUserId(userId).stream()
+            .map(com.hws.travel.mapper.GuideMapper::toDto)
+            .toList();
+    }
+
     private void validateGuideDto(Object dto) {
         if (dto instanceof GuideCreateDto guideCreateDto) {
             validateGuideCreateDtoFields(guideCreateDto);

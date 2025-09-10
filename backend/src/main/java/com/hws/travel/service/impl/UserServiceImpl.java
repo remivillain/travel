@@ -1,4 +1,3 @@
-
 package com.hws.travel.service.impl;
 
 import com.hws.travel.entity.Role;
@@ -39,6 +38,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserDto> getUserById(Long id) {
         return userRepository.findById(id).map(UserMapper::toDto);
+    }
+    
+    @Override
+    public Long findIdByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .map(User::getId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé : " + email));
     }
 
     @Override

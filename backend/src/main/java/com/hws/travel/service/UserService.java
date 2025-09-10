@@ -10,4 +10,5 @@ public interface UserService {
     Optional<UserDto> getUserById(Long id);
     UserDto saveUser(UserCreateDto userCreateDto);
     boolean deleteUser(Long id);
+    Long findIdByEmail(String email);
 }
