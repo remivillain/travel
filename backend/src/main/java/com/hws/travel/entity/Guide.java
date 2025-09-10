@@ -1,7 +1,6 @@
 package com.hws.travel.entity;
 
 import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
 import java.util.Set;
@@ -20,6 +19,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -35,26 +35,26 @@ public class Guide {
     private Long id;
 
     @Column(nullable = false)
-    @jakarta.validation.constraints.NotNull
+    @NotNull
     private String titre;
 
     @Column(nullable = false)
-    @jakarta.validation.constraints.NotNull
+    @NotNull
     private String description;
 
     @Column(nullable = false)
     private int nombreJours;
 
     @ElementCollection
-    @jakarta.validation.constraints.NotNull
+    @NotNull
     private Set<Mobilite> mobilites;
 
     @ElementCollection
-    @jakarta.validation.constraints.NotNull
+    @NotNull
     private Set<Saison> saisons;
 
     @ElementCollection
-    @jakarta.validation.constraints.NotNull
+    @NotNull
     private Set<PourQui> pourQui;
 
     @ManyToMany

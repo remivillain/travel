@@ -45,6 +45,7 @@ public class GuideController {
     }
     
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteGuide(@PathVariable Long id) {
         guideService.deleteGuide(id);
     }
