@@ -54,14 +54,11 @@
         </div>
       </div>
 
-      <!-- Divider -->
-      <div class="border-t border-gray-200 mb-6"></div>
-
       <!-- Search Bar -->
-      <div class="relative">
+      <div class="relative mt-6">
         <input
           type="text"
-          [(ngModel)]="searchTerm"
+          [value]="searchTerm()"
           (input)="onSearchChange($event)"
           placeholder="Rechercher un guide..."
           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -113,7 +110,7 @@
     </div>
 
     <!-- Guides Grid -->
-    <div *ngIf="!loading() && !error()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngIf="!loading() && !error() && filteredGuides().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
         *ngFor="let guide of filteredGuides(); trackBy: trackByGuide"
         (click)="openGuide(guide)"

@@ -64,3 +64,17 @@ body {
 	transform-origin: center top;
 }
 
+/* Désactiver les effets de scale sur les boutons de filtre */
+.filter-button {
+	transform: none !important;
+	transition: color 0.2s ease, background-color 0.2s ease !important;
+}
+
+.filter-button:hover {
+	transform: none !important;
+}
+
+.filter-button:active {
+	transform: none !important;
+}
+

@@ -28,13 +28,12 @@ export class GuideListComponent implements OnInit {
   guides = signal<Guide[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-
-  searchTerm = '';
-  filters: GuideFilters = {
+  searchTerm = signal('');
+  filters = signal<GuideFilters>({
     mobility: [],
     season: [],
     audience: []
-  };
+  });
 
   mobiliteOptions: string[] = [];
   saisonOptions: string[] = [];
@@ -42,10 +41,12 @@ export class GuideListComponent implements OnInit {
 
   filteredGuides = computed(() => {
     let filtered = this.guides();
+    const currentFilters = this.filters();
+    const searchTerm = this.searchTerm();
 
     // Search filter
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
       filtered = filtered.filter(guide => 
         guide.titre.toLowerCase().includes(term) ||
         guide.description.toLowerCase().includes(term)
@@ -53,21 +54,21 @@ export class GuideListComponent implements OnInit {
     }
 
     // Filters
-    if (this.filters.mobility && this.filters.mobility.length > 0) {
+    if (currentFilters.mobility && currentFilters.mobility.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.mobilites?.some(mobility => this.filters.mobility!.includes(mobility))
+        guide.mobilites?.some(mobility => currentFilters.mobility!.includes(mobility))
       );
     }
 
-    if (this.filters.season && this.filters.season.length > 0) {
+    if (currentFilters.season && currentFilters.season.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.saisons?.some(season => this.filters.season!.includes(season))
+        guide.saisons?.some(season => currentFilters.season!.includes(season))
       );
     }
 
-    if (this.filters.audience && this.filters.audience.length > 0) {
+    if (currentFilters.audience && currentFilters.audience.length > 0) {
       filtered = filtered.filter(guide => 
-        guide.pourQui?.some(audience => this.filters.audience!.includes(audience))
+        guide.pourQui?.some(audience => currentFilters.audience!.includes(audience))
       );
     }
 
@@ -110,7 +111,8 @@ export class GuideListComponent implements OnInit {
   }
 
   toggleFilter(filterType: keyof GuideFilters, value: string) {
-    const filter = this.filters[filterType];
+    const currentFilters = this.filters();
+    const filter = currentFilters[filterType];
     if (!filter) return;
 
     const index = filter.indexOf(value);
@@ -119,23 +121,27 @@ export class GuideListComponent implements OnInit {
     } else {
       filter.splice(index, 1);
     }
-    // Filtrage automatique via computed signal
+    
+    // Mettre à jour le signal avec le nouvel objet
+    this.filters.set({ ...currentFilters });
   }
 
   isFilterSelected(filterType: keyof GuideFilters, value: string): boolean {
-    const filter = this.filters[filterType];
+    const currentFilters = this.filters();
+    const filter = currentFilters[filterType];
     return filter ? filter.includes(value) : false;
   }
 
   getSelectedCount(filterType: keyof GuideFilters): number {
-    const filter = this.filters[filterType];
+    const currentFilters = this.filters();
+    const filter = currentFilters[filterType];
     return filter ? filter.length : 0;
   }
 
   getFilterButtonClass(isSelected: boolean): string {
     return isSelected 
-      ? 'btn-primary px-3 py-1 rounded-full text-xs font-medium transition-colors' 
-      : 'px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors';
+      ? 'filter-button btn-primary px-3 py-1 rounded-full text-xs font-medium' 
+      : 'filter-button px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-blue-50 hover:text-blue-600';
   }
 
   hasActiveFilters(): boolean {
@@ -145,13 +151,15 @@ export class GuideListComponent implements OnInit {
   }
 
   clearAllFilters() {
-    this.filters.mobility = [];
-    this.filters.season = [];
-    this.filters.audience = [];
+    this.filters.set({
+      mobility: [],
+      season: [],
+      audience: []
+    });
   }
 
   onSearchChange(event: any) {
-    this.searchTerm = event.target.value;
+    this.searchTerm.set(event.target.value);
     // Le filtrage se fait automatiquement via computed signal
   }
 
