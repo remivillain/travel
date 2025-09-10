@@ -35,6 +35,7 @@ export class GuideListComponent implements OnInit {
     season: [],
     audience: []
   });
+  showGuidesAnimation = signal(false);
 
   mobiliteOptions: string[] = [];
   saisonOptions: string[] = [];
@@ -95,10 +96,16 @@ export class GuideListComponent implements OnInit {
   async loadGuides() {
     this.loading.set(true);
     this.error.set(null);
+    this.showGuidesAnimation.set(false);
 
     try {
       const guides = await this.guideService.getUserGuides();
       this.guides.set(guides);
+      
+      // Déclencher l'animation après un court délai
+      setTimeout(() => {
+        this.showGuidesAnimation.set(true);
+      }, 100);
     } catch (err: any) {
       this.error.set('Impossible de charger les guides');
       console.error('Error loading guides:', err);
@@ -125,6 +132,9 @@ export class GuideListComponent implements OnInit {
     
     // Mettre à jour le signal avec le nouvel objet
     this.filters.set({ ...currentFilters });
+    
+    // Déclencher l'animation pour les nouveaux résultats
+    this.triggerGuidesAnimation();
   }
 
   isFilterSelected(filterType: keyof GuideFilters, value: string): boolean {
@@ -157,11 +167,17 @@ export class GuideListComponent implements OnInit {
       season: [],
       audience: []
     });
+    
+    // Déclencher l'animation pour afficher tous les guides
+    this.triggerGuidesAnimation();
   }
 
   onSearchChange(event: any) {
     this.searchTerm.set(event.target.value);
     // Le filtrage se fait automatiquement via computed signal
+    
+    // Déclencher l'animation pour les nouveaux résultats
+    this.triggerGuidesAnimation();
   }
 
   openGuide(guide: Guide, event?: Event) {
@@ -194,5 +210,13 @@ export class GuideListComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Méthode pour déclencher les animations lors des changements de filtres
+  private triggerGuidesAnimation() {
+    this.showGuidesAnimation.set(false);
+    setTimeout(() => {
+      this.showGuidesAnimation.set(true);
+    }, 50);
   }
 }
