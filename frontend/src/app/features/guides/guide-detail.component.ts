@@ -7,10 +7,11 @@ import { Guide } from '../../core/models/guide.model';
 import { GuideActivite } from '../../core/models/guide-activite.model';
 import { formatEnum } from '../../core/utils/utils-enum-format';
 
+import { ActivityListComponent } from '../activities/activity-list.component';
 @Component({
   selector: 'app-guide-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ActivityListComponent],
   templateUrl: './guide-detail.component.html',
 })
 export class GuideDetailComponent implements OnInit {
