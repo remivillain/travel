@@ -8,6 +8,9 @@ import { OfflineStorageService } from '../../core/services/offline-storage.servi
   selector: 'app-offline-status',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    '[class.show-bar]': 'shouldShowBar()'
+  },
   template: `
     <!-- Barre de statut hors-ligne -->
     <div class="offline-status-bar" 
@@ -141,6 +144,17 @@ import { OfflineStorageService } from '../../core/services/offline-storage.servi
       margin: 0 auto;
     }
 
+    /* Ajout de l'espace pour pousser le contenu vers le bas */
+    :host {
+      display: block;
+      height: 0;
+      transition: height 0.3s ease-in-out;
+    }
+
+    :host.show-bar {
+      height: 60px;
+    }
+
     .sync-spinner svg {
       animation: spin 1s linear infinite;
     }
@@ -178,12 +192,19 @@ export class OfflineStatusComponent implements OnInit {
     }, 10000);
   }
 
-  get isOnline() {
-    return this.networkService.isOnline;
+  isOnline() {
+    return this.networkService.isOnline();
   }
 
-  get syncStatus() {
-    return this.syncService.status;
+  syncStatus() {
+    return this.syncService.status();
+  }
+
+  shouldShowBar(): boolean {
+    return !this.isOnline() || 
+           this.syncStatus().isActive || 
+           this.syncStatus().pendingCount > 0 ||
+           this.syncStatus().errors.length > 0;
   }
 
   async forceSync() {
