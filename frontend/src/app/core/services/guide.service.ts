@@ -32,16 +32,32 @@ export class GuideService {
       return [];
     }
 
+    // Vérifier si l'utilisateur est connecté
+    const currentUserId = this.authService.getCurrentUserId();
+    
+    if (!currentUserId) {
+      // Mode dégradé sans cache sécurisé - silencieux
+    }
+
     // Vérifier si l'utilisateur est admin
     const isAdmin = this.authService.hasRole('ADMIN');
     const endpoint = isAdmin ? this.apiUrl : this.apiUrl + '/mes-guides';
 
-    // Si hors-ligne, retourner les données en cache (déjà filtrées par le backend)
+    // Si hors-ligne, retourner les données en cache (avec vérification utilisateur si possible)
     if (!this.networkService.isOnline()) {
-      const cachedGuides = this.offlineStorage.getCachedUserGuides();
-      if (cachedGuides) {
-        console.log('📦 Guides chargés depuis le cache (hors-ligne)');
-        return cachedGuides;
+      if (currentUserId) {
+        const cachedGuides = this.offlineStorage.getCachedUserGuides(currentUserId);
+        if (cachedGuides) {
+          console.log('📦 Guides chargés depuis le cache (hors-ligne)');
+          return cachedGuides;
+        }
+      } else {
+        // Mode dégradé : essayer de récupérer le cache sans vérification utilisateur
+        const cachedGuides = this.offlineStorage.getCache<Guide[]>('user_guides');
+        if (cachedGuides) {
+          console.log('📦 Guides chargés depuis le cache (mode dégradé, hors-ligne)');
+          return cachedGuides;
+        }
       }
       throw new Error('Aucune donnée disponible hors-ligne');
     }
@@ -54,10 +70,19 @@ export class GuideService {
         }).pipe(
           catchError(error => {
             // En cas d'erreur réseau, essayer le cache
-            const cachedGuides = this.offlineStorage.getCachedUserGuides();
-            if (cachedGuides) {
-              console.log('📦 Guides chargés depuis le cache (erreur réseau)');
-              return of(cachedGuides);
+            if (currentUserId) {
+              const cachedGuides = this.offlineStorage.getCachedUserGuides(currentUserId);
+              if (cachedGuides) {
+                console.log('📦 Guides chargés depuis le cache (erreur réseau)');
+                return of(cachedGuides);
+              }
+            } else {
+              // Mode dégradé
+              const cachedGuides = this.offlineStorage.getCache<Guide[]>('user_guides');
+              if (cachedGuides) {
+                console.log('📦 Guides chargés depuis le cache (mode dégradé, erreur réseau)');
+                return of(cachedGuides);
+              }
             }
             throw error;
           })
@@ -67,17 +92,30 @@ export class GuideService {
       const guides = result ?? [];
       
       // Le backend fait déjà le filtrage, pas besoin de refiltrer
-      // Toujours mettre en cache les guides récupérés (même si vide)
-      this.offlineStorage.cacheUserGuides(guides);
-      console.log(`📦 ${guides.length} guides mis en cache`);
+      // Toujours mettre en cache les guides récupérés (même si vide) avec l'ID utilisateur
+      if (currentUserId) {
+        this.offlineStorage.cacheUserGuides(guides, currentUserId);
+      } else {
+        // Mode dégradé sans sécurité
+        this.offlineStorage.setCache('user_guides', guides, 720);
+      }
 
       return guides;
     } catch (error) {
       // Dernière tentative avec le cache
-      const cachedGuides = this.offlineStorage.getCachedUserGuides();
-      if (cachedGuides) {
-        console.log('📦 Guides chargés depuis le cache (fallback)');
-        return cachedGuides;
+      if (currentUserId) {
+        const cachedGuides = this.offlineStorage.getCachedUserGuides(currentUserId);
+        if (cachedGuides) {
+          console.log('📦 Guides chargés depuis le cache (fallback)');
+          return cachedGuides;
+        }
+      } else {
+        // Mode dégradé
+        const cachedGuides = this.offlineStorage.getCache<Guide[]>('user_guides');
+        if (cachedGuides) {
+          console.log('📦 Guides chargés depuis le cache (mode dégradé, fallback)');
+          return cachedGuides;
+        }
       }
       console.error('❌ Aucune donnée disponible (ni en ligne ni en cache):', error);
       throw error;
@@ -102,7 +140,12 @@ export class GuideService {
 
     // Si hors-ligne, essayer le cache d'abord
     if (!this.networkService.isOnline()) {
-      const cachedGuide = this.offlineStorage.getCachedGuide(id);
+      const currentUserId = this.authService.getCurrentUserId();
+      if (!currentUserId) {
+        throw new Error('Utilisateur non connecté');
+      }
+      
+      const cachedGuide = this.offlineStorage.getCachedGuide(id, currentUserId);
       if (cachedGuide) {
         console.log(`📦 Guide ${id} chargé depuis le cache (hors-ligne)`);
         return cachedGuide;
@@ -123,7 +166,12 @@ export class GuideService {
             }
             
             // En cas d'autres erreurs réseau, essayer le cache
-            const cachedGuide = this.offlineStorage.getCachedGuide(id);
+            const currentUserId = this.authService.getCurrentUserId();
+            if (!currentUserId) {
+              throw error;
+            }
+            
+            const cachedGuide = this.offlineStorage.getCachedGuide(id, currentUserId);
             if (cachedGuide) {
               console.log(`📦 Guide ${id} chargé depuis le cache (erreur réseau)`);
               return of(cachedGuide);
@@ -135,7 +183,10 @@ export class GuideService {
 
       // Le backend gère déjà les autorisations, pas besoin de vérifier côté frontend
       // Mettre en cache le guide récupéré
-      this.offlineStorage.cacheGuide(guide);
+      const currentUserId = this.authService.getCurrentUserId();
+      if (currentUserId) {
+        this.offlineStorage.cacheGuide(guide, currentUserId);
+      }
       return guide;
     } catch (error: any) {
       // Pour les erreurs d'autorisation/authentification, ne pas utiliser le cache
@@ -144,10 +195,13 @@ export class GuideService {
       }
       
       // Dernière tentative avec le cache pour les autres erreurs
-      const cachedGuide = this.offlineStorage.getCachedGuide(id);
-      if (cachedGuide) {
-        console.log(`📦 Guide ${id} chargé depuis le cache (fallback)`);
-        return cachedGuide;
+      const currentUserId = this.authService.getCurrentUserId();
+      if (currentUserId) {
+        const cachedGuide = this.offlineStorage.getCachedGuide(id, currentUserId);
+        if (cachedGuide) {
+          console.log(`📦 Guide ${id} chargé depuis le cache (fallback)`);
+          return cachedGuide;
+        }
       }
       throw error;
     }
@@ -159,11 +213,14 @@ export class GuideService {
       this.syncService.queueUpdate(`/guides/${id}/favorite`, {});
       
       // Mettre à jour le cache local si possible
-      const cachedGuide = this.offlineStorage.getCachedGuide(id);
-      if (cachedGuide) {
-        // Toggle local pour feedback immédiat
-        // cachedGuide.isFavorite = !cachedGuide.isFavorite;
-        this.offlineStorage.cacheGuide(cachedGuide);
+      const currentUserId = this.authService.getCurrentUserId();
+      if (currentUserId) {
+        const cachedGuide = this.offlineStorage.getCachedGuide(id, currentUserId);
+        if (cachedGuide) {
+          // Toggle local pour feedback immédiat
+          // cachedGuide.isFavorite = !cachedGuide.isFavorite;
+          this.offlineStorage.cacheGuide(cachedGuide, currentUserId);
+        }
       }
       
       console.log(`⭐ Favori pour le guide ${id} sera synchronisé plus tard`);

@@ -5,6 +5,7 @@ export interface CacheEntry<T> {
   data: T;
   timestamp: number;
   expiresAt: number;
+  userId?: string; // Changé de number à string pour supporter l'email
 }
 
 export interface PendingSync {
@@ -27,15 +28,16 @@ export class OfflineStorageService {
   // === CACHE MANAGEMENT ===
 
   /**
-   * Stocke des données dans le cache local avec TTL
+   * Stocke des données dans le cache local avec TTL et sécurité utilisateur
    */
-  setCache<T>(key: string, data: T, ttlMinutes: number = 60): void {
+  setCache<T>(key: string, data: T, ttlMinutes: number = 60, userId?: string): void {
     if (typeof window === 'undefined') return;
 
     const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
-      expiresAt: Date.now() + (ttlMinutes * 60 * 1000)
+      expiresAt: Date.now() + (ttlMinutes * 60 * 1000),
+      userId
     };
 
     try {
@@ -46,9 +48,9 @@ export class OfflineStorageService {
   }
 
   /**
-   * Récupère des données du cache local
+   * Récupère des données du cache local avec vérification utilisateur
    */
-  getCache<T>(key: string): T | null {
+  getCache<T>(key: string, userId?: string): T | null {
     if (typeof window === 'undefined') return null;
 
     try {
@@ -60,6 +62,11 @@ export class OfflineStorageService {
       // Vérifier l'expiration
       if (Date.now() > entry.expiresAt) {
         this.removeCache(key);
+        return null;
+      }
+
+      // Vérifier que les données appartiennent à l'utilisateur actuel
+      if (entry.userId && userId && entry.userId !== userId) {
         return null;
       }
 
@@ -95,32 +102,31 @@ export class OfflineStorageService {
   // === GUIDES SPECIFIC CACHE ===
 
   /**
-   * Cache les guides de l'utilisateur
+   * Cache les guides de l'utilisateur avec son ID
    */
-  cacheUserGuides(guides: Guide[]): void {
-    this.setCache('user_guides', guides, 720); // 12 heures
-    console.log(`📦 ${guides.length} guides mis en cache`);
+  cacheUserGuides(guides: Guide[], userId: string): void {
+    this.setCache('user_guides', guides, 720, userId); // 12 heures
   }
 
   /**
-   * Récupère les guides depuis le cache
+   * Récupère les guides depuis le cache pour l'utilisateur actuel
    */
-  getCachedUserGuides(): Guide[] | null {
-    return this.getCache<Guide[]>('user_guides');
+  getCachedUserGuides(userId: string): Guide[] | null {
+    return this.getCache<Guide[]>('user_guides', userId);
   }
 
   /**
-   * Cache un guide spécifique
+   * Cache un guide spécifique avec l'ID utilisateur
    */
-  cacheGuide(guide: Guide): void {
-    this.setCache(`guide_${guide.id}`, guide, 720); // 12 heures
+  cacheGuide(guide: Guide, userId: string): void {
+    this.setCache(`guide_${guide.id}`, guide, 720, userId); // 12 heures
   }
 
   /**
-   * Récupère un guide spécifique depuis le cache
+   * Récupère un guide spécifique depuis le cache pour l'utilisateur actuel
    */
-  getCachedGuide(id: number): Guide | null {
-    return this.getCache<Guide>(`guide_${id}`);
+  getCachedGuide(id: number, userId: string): Guide | null {
+    return this.getCache<Guide>(`guide_${id}`, userId);
   }
 
   // === SYNC QUEUE MANAGEMENT ===

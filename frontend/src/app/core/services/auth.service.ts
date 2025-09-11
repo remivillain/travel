@@ -26,19 +26,21 @@ export class AuthService {
       if (!token) return null;
       
       const payload = JSON.parse(atob(token.split('.')[1]));
+      
       return { 
-        id: payload.userId || payload.id,
+        id: payload.userId || payload.id || payload.sub,
         email: payload.email,
         roles: payload.roles || []
       };
-    } catch {
+    } catch (error) {
       return null;
     }
   }
 
-  getCurrentUserId(): number | null {
+  getCurrentUserId(): string | null {
     const user = this.currentUser();
-    return user?.id || null;
+    // Utiliser l'email comme identifiant unique au lieu de l'ID numérique
+    return user?.email || null;
   }
 
   hasRole(role: string): boolean {
