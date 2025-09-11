@@ -6,12 +6,16 @@ import com.hws.travel.dto.UserDto;
 import com.hws.travel.dto.UserCreateDto;
 import com.hws.travel.service.impl.UserServiceImpl;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
     private final UserServiceImpl userService;
 
@@ -28,26 +32,28 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserDto getUserById(@PathVariable Long id) {
+    public UserDto getUserById(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         return userService.getUserById(id)
-            .orElse(null);
+            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
         UserDto userDto = userService.saveUser(userCreateDto);
         return ResponseEntity.status(201).body(userDto);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<String> deleteUser(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         boolean deleted = userService.deleteUser(id);
         if (deleted) {
             return ResponseEntity.ok("Utilisateur supprimé avec succès.");
         } else {
-            return ResponseEntity.status(404).body("Utilisateur non trouvé.");
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.NOT_FOUND, "Utilisateur non trouvé");
         }
     }
 }

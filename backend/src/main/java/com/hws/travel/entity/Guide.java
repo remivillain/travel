@@ -20,7 +20,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotNull;
+
 
 @Entity
 @Data
@@ -36,26 +36,21 @@ public class Guide {
     private Long id;
 
     @Column(nullable = false)
-    @NotNull
     private String titre;
 
     @Column(nullable = false)
-    @NotNull
     private String description;
 
     @Column(nullable = false)
     private int nombreJours;
 
     @ElementCollection
-    @NotNull
     private List<Mobilite> mobilites;
 
     @ElementCollection
-    @NotNull
     private List<Saison> saisons;
 
     @ElementCollection
-    @NotNull
     private List<PourQui> pourQui;
 
     @ManyToMany
