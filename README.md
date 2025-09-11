@@ -37,7 +37,7 @@ L'application sera accessible sur :
 ### 👨‍💼 Administrateur
 - **Email** : `admin@admin.com`
 - **Rôle** : ADMIN
-- **Accès** : Tous les guides + fonctions d'administration (invitations, CRUD)
+- **Accès** : Tous les guides + fonctions d'administration 
 
 ### 👤 Utilisateurs standard
 
@@ -201,6 +201,3 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - Configuration sécurisée avec authentification JWT Bearer
 - Documentation automatique générée depuis les annotations @Operation, @ApiResponses, etc.
 
-## 📄 License
-
-MIT License - Voir le fichier LICENSE pour plus de détails.
