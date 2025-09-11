@@ -156,6 +156,38 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - **Node.js** : 18+
 - **Angular** : 19
 
+## 📈 Processus de développement
+
+### Phase 1 : Backend Foundation
+- Création des entités, repositories et services
+- Configuration H2 et architecture Spring Boot
+- Mise en place JWT et système d'authentification
+
+### Phase 2 : Frontend & API
+- Développement Angular avec Standalone Components
+- Intégration Tailwind CSS et composants UI
+- Connexion API REST avec gestion JWT
+
+### Phase 3 : Features Core
+- CRUD complet guides et activités
+- Système d'invitations utilisateur
+- Contrôle d'accès et permissions
+
+### Phase 4 : UX & Performance
+- Mode hors-ligne avec PWA
+- Animations et spinners
+- Filtres et optimisations UI
+
+### Phase 5 : Testing & Security
+- Tests d'intégration complets
+- Correction failles sécurité offline
+- Procédures de test pour recrutement
+
+### Phase 6 : DevOps & Deploy
+- Configuration Docker complète
+- Documentation API Swagger
+- Procédures de déploiement
+
 ## 📊 Base de données
 
 ### Console H2 (développement)
