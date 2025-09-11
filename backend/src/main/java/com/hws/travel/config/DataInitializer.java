@@ -2,10 +2,14 @@ package com.hws.travel.config;
 
 import com.hws.travel.entity.*;
 import com.hws.travel.entity.enums.ActiviteCategorie;
+import com.hws.travel.entity.enums.Mobilite;
+import com.hws.travel.entity.enums.Saison;
+import com.hws.travel.entity.enums.PourQui;
 import com.hws.travel.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,13 +20,16 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ActiviteRepository activiteRepository;
     private final GuideRepository guideRepository;
+    private final GuideActiviteRepository guideActiviteRepository;
 
     public DataInitializer(RoleRepository roleRepository, UserRepository userRepository,
-                          ActiviteRepository activiteRepository, GuideRepository guideRepository) {
+                          ActiviteRepository activiteRepository, GuideRepository guideRepository,
+                          GuideActiviteRepository guideActiviteRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.activiteRepository = activiteRepository;
         this.guideRepository = guideRepository;
+        this.guideActiviteRepository = guideActiviteRepository;
     }
 
     @Override
@@ -39,6 +46,9 @@ public class DataInitializer implements CommandLineRunner {
 
         // Créer les guides de test
         createGuidesIfNotExists();
+
+        // Associer les activités aux guides
+        addActivitiesToGuides();
     }
 
     private Role createRoleIfNotExists(String roleName) {
@@ -134,28 +144,41 @@ public class DataInitializer implements CommandLineRunner {
     private void createGuidesIfNotExists() {
         if (guideRepository.count() == 0) {
             // Guide Paris culturel
-            Guide guideParis = createGuide("Paris Culturel - 3 jours", 
-                                         "Découverte des principaux musées et monuments parisiens", 3);
+            Guide guideParis = createGuideWithProperties("Paris Culturel", 
+                                         "Découverte des principaux musées et monuments parisiens", 3,
+                                         Arrays.asList(Mobilite.A_PIED, Mobilite.VOITURE),
+                                         Arrays.asList(Saison.PRINTEMPS, Saison.ETE, Saison.AUTOMNE),
+                                         Arrays.asList(PourQui.FAMILLE, PourQui.AMIS));
             
             // Guide Loire châteaux  
-            Guide guideLoire = createGuide("Châteaux de la Loire - 5 jours", 
-                                         "Circuit découverte des plus beaux châteaux de la Loire", 5);
+            Guide guideLoire = createGuideWithProperties("Châteaux de la Loire", 
+                                         "Circuit découverte des plus beaux châteaux de la Loire", 5,
+                                         Arrays.asList(Mobilite.VOITURE),
+                                         Arrays.asList(Saison.PRINTEMPS, Saison.ETE),
+                                         Arrays.asList(PourQui.FAMILLE, PourQui.GROUPE));
 
             // Guide Paris nature
-            Guide guideNature = createGuide("Paris Vert - 2 jours", 
-                                          "Les plus beaux parcs et jardins de Paris", 2);
+            Guide guideNature = createGuideWithProperties("Paris Vert", 
+                                          "Les plus beaux parcs et jardins de Paris", 2,
+                                          Arrays.asList(Mobilite.A_PIED, Mobilite.VELO),
+                                          Arrays.asList(Saison.PRINTEMPS, Saison.ETE),
+                                          Arrays.asList(PourQui.FAMILLE, PourQui.SEUL));
 
             // Inviter quelques utilisateurs aux guides
             addInvitationsToGuides(guideParis, guideLoire, guideNature);
         }
     }
 
-    private Guide createGuide(String titre, String description, int nombreJours) {
+    private Guide createGuideWithProperties(String titre, String description, int nombreJours,
+                                          List<Mobilite> mobilites, List<Saison> saisons, List<PourQui> pourQui) {
         Guide guide = new Guide();
         guide.setTitre(titre);
         guide.setDescription(description);
         guide.setNombreJours(nombreJours);
         guide.setInvitedUsers(new ArrayList<>());
+        guide.setMobilites(mobilites);
+        guide.setSaisons(saisons);
+        guide.setPourQui(pourQui);
         return guideRepository.save(guide);
     }
 
@@ -181,6 +204,150 @@ public class DataInitializer implements CommandLineRunner {
             guideNature.getInvitedUsers().add(user2);
             guideNature.getInvitedUsers().add(guideUser);
             guideRepository.save(guideNature);
+        }
+    }
+
+    private void addActivitiesToGuides() {
+        if (guideActiviteRepository.count() == 0) {
+            // Récupérer tous les guides et activités
+            List<Guide> guides = guideRepository.findAll();
+            List<Activite> activites = activiteRepository.findAll();
+
+            // Trouver les guides par titre
+            Guide guideParis = guides.stream()
+                .filter(g -> "Paris Culturel".equals(g.getTitre()))
+                .findFirst().orElse(null);
+            Guide guideLoire = guides.stream()
+                .filter(g -> "Châteaux de la Loire".equals(g.getTitre()))
+                .findFirst().orElse(null);
+            Guide guideNature = guides.stream()
+                .filter(g -> "Paris Vert".equals(g.getTitre()))
+                .findFirst().orElse(null);
+
+            // Trouver les activités par titre
+            Activite louvre = activites.stream()
+                .filter(a -> "Musée du Louvre".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite versailles = activites.stream()
+                .filter(a -> "Château de Versailles".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite orsay = activites.stream()
+                .filter(a -> "Musée d'Orsay".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite eiffel = activites.stream()
+                .filter(a -> "Tour Eiffel".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite chambord = activites.stream()
+                .filter(a -> "Château de Chambord".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite lascaux = activites.stream()
+                .filter(a -> "Grottes de Lascaux IV".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite buttes = activites.stream()
+                .filter(a -> "Parc des Buttes-Chaumont".equals(a.getTitre()))
+                .findFirst().orElse(null);
+            Activite luxembourg = activites.stream()
+                .filter(a -> "Jardin du Luxembourg".equals(a.getTitre()))
+                .findFirst().orElse(null);
+
+            List<GuideActivite> guideActivites = new ArrayList<>();
+
+            // Guide Paris Culturel (3 jours)
+            if (guideParis != null) {
+                if (louvre != null) {
+                    GuideActivite ga1 = new GuideActivite();
+                    ga1.setGuide(guideParis);
+                    ga1.setActivite(louvre);
+                    ga1.setJour(1);
+                    ga1.setOrdre(1);
+                    guideActivites.add(ga1);
+                }
+                if (eiffel != null) {
+                    GuideActivite ga2 = new GuideActivite();
+                    ga2.setGuide(guideParis);
+                    ga2.setActivite(eiffel);
+                    ga2.setJour(1);
+                    ga2.setOrdre(2);
+                    guideActivites.add(ga2);
+                }
+                if (orsay != null) {
+                    GuideActivite ga3 = new GuideActivite();
+                    ga3.setGuide(guideParis);
+                    ga3.setActivite(orsay);
+                    ga3.setJour(2);
+                    ga3.setOrdre(1);
+                    guideActivites.add(ga3);
+                }
+                if (versailles != null) {
+                    GuideActivite ga4 = new GuideActivite();
+                    ga4.setGuide(guideParis);
+                    ga4.setActivite(versailles);
+                    ga4.setJour(3);
+                    ga4.setOrdre(1);
+                    guideActivites.add(ga4);
+                }
+            }
+
+            // Guide Châteaux de la Loire (5 jours)
+            if (guideLoire != null) {
+                if (chambord != null) {
+                    GuideActivite ga5 = new GuideActivite();
+                    ga5.setGuide(guideLoire);
+                    ga5.setActivite(chambord);
+                    ga5.setJour(1);
+                    ga5.setOrdre(1);
+                    guideActivites.add(ga5);
+                }
+                if (versailles != null) {
+                    GuideActivite ga6 = new GuideActivite();
+                    ga6.setGuide(guideLoire);
+                    ga6.setActivite(versailles);
+                    ga6.setJour(2);
+                    ga6.setOrdre(1);
+                    guideActivites.add(ga6);
+                }
+                if (lascaux != null) {
+                    GuideActivite ga7 = new GuideActivite();
+                    ga7.setGuide(guideLoire);
+                    ga7.setActivite(lascaux);
+                    ga7.setJour(3);
+                    ga7.setOrdre(1);
+                    guideActivites.add(ga7);
+                }
+            }
+
+            // Guide Paris Vert (2 jours)
+            if (guideNature != null) {
+                if (buttes != null) {
+                    GuideActivite ga8 = new GuideActivite();
+                    ga8.setGuide(guideNature);
+                    ga8.setActivite(buttes);
+                    ga8.setJour(1);
+                    ga8.setOrdre(1);
+                    guideActivites.add(ga8);
+                }
+                if (luxembourg != null) {
+                    GuideActivite ga9 = new GuideActivite();
+                    ga9.setGuide(guideNature);
+                    ga9.setActivite(luxembourg);
+                    ga9.setJour(1);
+                    ga9.setOrdre(2);
+                    guideActivites.add(ga9);
+                }
+                if (eiffel != null) {
+                    GuideActivite ga10 = new GuideActivite();
+                    ga10.setGuide(guideNature);
+                    ga10.setActivite(eiffel);
+                    ga10.setJour(2);
+                    ga10.setOrdre(1);
+                    guideActivites.add(ga10);
+                }
+            }
+
+            // Sauvegarder toutes les associations
+            if (!guideActivites.isEmpty()) {
+                guideActiviteRepository.saveAll(guideActivites);
+            }
         }
     }
 }
