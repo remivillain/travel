@@ -6,6 +6,7 @@ import com.hws.travel.dto.UserDto;
 import com.hws.travel.dto.UserCreateDto;
 import com.hws.travel.service.impl.UserServiceImpl;
 
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +33,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public UserDto getUserById(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
+    public UserDto getUserById(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         return userService.getUserById(id)
             .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
@@ -40,14 +42,16 @@ public class UserController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+    public ResponseEntity<UserDto> createUser(
+            @Valid @RequestBody UserCreateDto userCreateDto) {
         UserDto userDto = userService.saveUser(userCreateDto);
         return ResponseEntity.status(201).body(userDto);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
+    public ResponseEntity<String> deleteUser(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         boolean deleted = userService.deleteUser(id);
         if (deleted) {
             return ResponseEntity.ok("Utilisateur supprimé avec succès.");

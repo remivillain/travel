@@ -2,7 +2,6 @@ package com.hws.travel.controller;
 
 import com.hws.travel.dto.ActiviteDto;
 import com.hws.travel.service.impl.ActiviteServiceImpl;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.security.access.prepost.PreAuthorize;

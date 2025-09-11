@@ -8,6 +8,13 @@ import com.hws.travel.dto.UserInvitationDto;
 import com.hws.travel.service.UserService;
 import com.hws.travel.service.impl.GuideServiceImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +26,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/guides")
 @Validated
+@Tag(name = "Guides", description = "Gestion des guides de voyage avec système d'invitations")
+@SecurityRequirement(name = "Bearer Authentication")
 public class GuideController {
     private final GuideServiceImpl guideService;
     private final UserService userService;
@@ -30,6 +39,14 @@ public class GuideController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "Récupérer tous les guides", 
+        description = "Récupère la liste complète des guides (accessible aux administrateurs uniquement)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Liste des guides récupérée avec succès"),
+        @ApiResponse(responseCode = "403", description = "Accès refusé - rôle ADMIN requis")
+    })
     public List<GuideDto> getAllGuides() {
         return guideService.getAllGuides().stream()
             .toList();
@@ -37,7 +54,19 @@ public class GuideController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public GuideDto getGuideById(@PathVariable @Positive(message = "L'ID doit être positif") Long id, Authentication authentication) {
+    @Operation(
+        summary = "Récupérer un guide par ID", 
+        description = "Récupère un guide spécifique selon son ID (accessible aux utilisateurs autorisés)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Guide récupéré avec succès"),
+        @ApiResponse(responseCode = "403", description = "Accès refusé - guide non accessible à cet utilisateur"),
+        @ApiResponse(responseCode = "404", description = "Guide non trouvé")
+    })
+    public GuideDto getGuideById(
+            @Parameter(description = "ID du guide", required = true)
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id, 
+            Authentication authentication) {
         String email = authentication.getName();
         Long userId = userService.findIdByEmail(email);
         return guideService.getGuideByIdForUser(id, userId);
@@ -92,15 +121,17 @@ public class GuideController {
 
     @PostMapping("/{id}/invite")
     @PreAuthorize("hasRole('ADMIN')")
-    public GuideDto inviteUserToGuide(@PathVariable @Positive(message = "L'ID doit être positif") Long id,
-                                     @Valid @RequestBody UserInvitationDto userInvitationDto) {
+    public GuideDto inviteUserToGuide(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id,
+            @Valid @RequestBody UserInvitationDto userInvitationDto) {
         return guideService.inviteUserToGuide(id, userInvitationDto.getUserId());
     }
 
     @DeleteMapping("/{id}/invite")
     @PreAuthorize("hasRole('ADMIN')")
-    public GuideDto removeUserFromGuide(@PathVariable @Positive(message = "L'ID doit être positif") Long id,
-                                       @Valid @RequestBody UserInvitationDto userInvitationDto) {
+    public GuideDto removeUserFromGuide(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id,
+            @Valid @RequestBody UserInvitationDto userInvitationDto) {
         return guideService.removeUserFromGuide(id, userInvitationDto.getUserId());
     }
 }

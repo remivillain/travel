@@ -5,6 +5,7 @@ import com.hws.travel.entity.Role;
 import com.hws.travel.mapper.RoleMapper;
 import com.hws.travel.service.impl.RoleServiceImpl;
 
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("/api/roles")
 @Validated
 public class RoleController {
     private final RoleServiceImpl roleService;
@@ -32,7 +33,8 @@ public class RoleController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public RoleDto getRoleById(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
+    public RoleDto getRoleById(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         return roleService.getRoleById(id)
             .map(RoleMapper::toDto)
             .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
@@ -41,14 +43,16 @@ public class RoleController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public RoleDto createRole(@Valid @RequestBody RoleDto roleDto) {
+    public RoleDto createRole(
+            @Valid @RequestBody RoleDto roleDto) {
         Role role = RoleMapper.toEntity(roleDto);
         return RoleMapper.toDto(roleService.saveRole(role));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteRole(@PathVariable @Positive(message = "L'ID doit être positif") Long id) {
+    public void deleteRole(
+            @PathVariable @Positive(message = "L'ID doit être positif") Long id) {
         roleService.deleteRole(id);
     }
 }
