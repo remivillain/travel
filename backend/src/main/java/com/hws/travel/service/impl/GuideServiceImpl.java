@@ -403,4 +403,61 @@ public class GuideServiceImpl implements GuideService {
         Guide savedGuide = guideRepository.save(guide);
         return GuideMapper.toDto(savedGuide);
     }
+
+    @Override
+    public GuideDto inviteUserToGuide(Long guideId, Long userId) {
+        // Vérifier que le guide existe
+        Guide guide = guideRepository.findById(guideId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
+
+        // Vérifier que l'utilisateur existe
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Utilisateur non trouvé avec l'ID : " + userId));
+
+        // Vérifier si l'utilisateur n'est pas déjà invité
+        if (guide.getInvitedUsers() != null && guide.getInvitedUsers().contains(user)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, 
+                "L'utilisateur est déjà invité à ce guide");
+        }
+
+        // Initialiser la liste si elle est null
+        if (guide.getInvitedUsers() == null) {
+            guide.setInvitedUsers(new ArrayList<>());
+        }
+
+        // Ajouter l'utilisateur aux invités
+        guide.getInvitedUsers().add(user);
+        
+        log.info("Utilisateur ID {} invité au guide {}", userId, guideId);
+        
+        Guide savedGuide = guideRepository.save(guide);
+        return GuideMapper.toDto(savedGuide);
+    }
+
+    @Override
+    public GuideDto removeUserFromGuide(Long guideId, Long userId) {
+        // Vérifier que le guide existe
+        Guide guide = guideRepository.findById(guideId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Guide non trouvé"));
+
+        // Vérifier que l'utilisateur existe
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "Utilisateur non trouvé avec l'ID : " + userId));
+
+        // Vérifier si l'utilisateur est invité
+        if (guide.getInvitedUsers() == null || !guide.getInvitedUsers().contains(user)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                "L'utilisateur n'est pas invité à ce guide");
+        }
+
+        // Retirer l'utilisateur des invités
+        guide.getInvitedUsers().remove(user);
+        
+        log.info("Utilisateur ID {} retiré du guide {}", userId, guideId);
+        
+        Guide savedGuide = guideRepository.save(guide);
+        return GuideMapper.toDto(savedGuide);
+    }
 }

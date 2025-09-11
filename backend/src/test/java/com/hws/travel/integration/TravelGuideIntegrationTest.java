@@ -113,80 +113,32 @@ public class TravelGuideIntegrationTest {
         testGuideId2 = savedGuide2.getId();
     }
 
+    // ===================================================================
+    // 1. TESTS DE SÉCURITÉ DE BASE
+    // ===================================================================
+
     /**
-     * Test 1 : Validation des endpoints de guides 
+     * Test 1 : Accès non authentifié refusé
      * 
      * Vérifie que :
-     * - Les guides peuvent être récupérés
-     * - La structure JSON correspond aux spécifications
-     * - Les attributs obligatoires sont présents (titre, description, nombre de jours)
+     * - Les utilisateurs non authentifiés ne peuvent accéder à aucun endpoint
+     * - Tous les endpoints retournent 403 Forbidden
      */
     @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testGuideEndpointsAccordingToSpecification() throws Exception {
-        // Test de récupération des guides publics (nécessite ADMIN)
+    public void testUnauthenticatedAccessDenied() throws Exception {
+        // Test: Utilisateur non authentifié ne peut accéder à aucun endpoint de guides
         mockMvc.perform(get("/api/guides"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(status().isForbidden());
+                
+        mockMvc.perform(get("/api/guides/mes-guides"))
+                .andExpect(status().isForbidden());
+                
+        mockMvc.perform(get("/api/guides/" + testGuideId1))
+                .andExpect(status().isForbidden());
     }
 
     /**
-     * Test 2 : Structure des guides 
-     * 
-     * Vérifie que les guides retournés ont :
-     * - Titre (obligatoire)
-     * - Description (obligatoire) 
-     * - Nombre de jours (obligatoire)
-     * - Options mobilité, saison, pour qui (selon énums)
-     */
-    @Test 
-    @WithMockUser(roles = "USER", username = "test@test.com")
-    public void testGuideStructureAccordingToSpecification() throws Exception {
-        // Test de récupération d'un guide spécifique (nécessite USER et authentification)
-        mockMvc.perform(get("/api/guides/1"))
-                .andExpect(status().isNotFound()); // Peut être 404 si le guide n'existe pas ou si l'utilisateur n'y a pas accès
-    }
-
-    /**
-     * Test 3 : Endpoints des activités 
-     * 
-     * Vérifie que les activités peuvent être récupérées
-     */
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testActivityEndpointsAccordingToSpecification() throws Exception {
-        // Test de récupération des activités (nécessite ADMIN)
-        mockMvc.perform(get("/api/activites"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    /**
-     * Test 4 : Structure des activités 
-     * 
-     * Vérifie que les activités ont tous les attributs requis  :
-     * - Titre, description, catégorie (obligatoires)
-     * - Adresse, téléphone, horaires, site internet (informations pratiques)
-     * - Catégories : musée, château, activité, parc, grotte
-     */
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void testActivityStructureAccordingToSpecification() throws Exception {
-        // Test de récupération d'une activité spécifique
-        mockMvc.perform(get("/api/activites/" + testActiviteId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.titre").exists())
-                .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.categorie").exists())
-                .andExpect(jsonPath("$.adresse").exists())
-                .andExpect(jsonPath("$.telephone").exists())
-                .andExpect(jsonPath("$.horairesOuverture").exists())
-                .andExpect(jsonPath("$.siteInternet").exists());
-    }
-
-    /**
-     * Test 5 : Permissions 
+     * Test 2 : Permissions d'accès aux endpoints protégés
      * 
      * Vérifie que :
      * - Les endpoints protégés nécessitent une authentification
@@ -212,8 +164,84 @@ public class TravelGuideIntegrationTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ===================================================================
+    // 2. TESTS DE STRUCTURE ET VALIDATION DES DONNÉES
+    // ===================================================================
+
     /**
-     * Test 6 : Validation des données 
+     * Test 3 : Validation des endpoints de guides 
+     * 
+     * Vérifie que :
+     * - Les guides peuvent être récupérés par un admin
+     * - La structure JSON correspond aux spécifications
+     * - Les attributs obligatoires sont présents (titre, description, nombre de jours)
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testGuideEndpointsAccordingToSpecification() throws Exception {
+        // Test de récupération des guides publics (nécessite ADMIN)
+        mockMvc.perform(get("/api/guides"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    /**
+     * Test 4 : Structure des guides 
+     * 
+     * Vérifie que les guides retournés ont :
+     * - Titre (obligatoire)
+     * - Description (obligatoire) 
+     * - Nombre de jours (obligatoire)
+     * - Options mobilité, saison, pour qui (selon énums)
+     */
+    @Test 
+    @WithMockUser(roles = "USER", username = "test@test.com")
+    public void testGuideStructureAccordingToSpecification() throws Exception {
+        // Test de récupération d'un guide spécifique (nécessite USER et authentification)
+        mockMvc.perform(get("/api/guides/1"))
+                .andExpect(status().isNotFound()); // Peut être 404 si le guide n'existe pas ou si l'utilisateur n'y a pas accès
+    }
+
+    /**
+     * Test 5 : Endpoints des activités 
+     * 
+     * Vérifie que les activités peuvent être récupérées
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testActivityEndpointsAccordingToSpecification() throws Exception {
+        // Test de récupération des activités (nécessite ADMIN)
+        mockMvc.perform(get("/api/activites"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    /**
+     * Test 6 : Structure des activités 
+     * 
+     * Vérifie que les activités ont tous les attributs requis  :
+     * - Titre, description, catégorie (obligatoires)
+     * - Adresse, téléphone, horaires, site internet (informations pratiques)
+     * - Catégories : musée, château, activité, parc, grotte
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testActivityStructureAccordingToSpecification() throws Exception {
+        // Test de récupération d'une activité spécifique
+        mockMvc.perform(get("/api/activites/" + testActiviteId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.titre").exists())
+                .andExpect(jsonPath("$.description").exists())
+                .andExpect(jsonPath("$.categorie").exists())
+                .andExpect(jsonPath("$.adresse").exists())
+                .andExpect(jsonPath("$.telephone").exists())
+                .andExpect(jsonPath("$.horairesOuverture").exists())
+                .andExpect(jsonPath("$.siteInternet").exists());
+    }
+
+    /**
+     * Test 7 : Validation des données 
      * 
      * Vérifie que les validations sont correctes pour :
      * - Attributs obligatoires des guides
@@ -236,7 +264,6 @@ public class TravelGuideIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
-   
     /**
      * Test 8 : Endpoints d'ajout d'activités 
      * 
@@ -263,15 +290,165 @@ public class TravelGuideIntegrationTest {
         mockMvc.perform(delete("/api/guides/1/activities/1"))
                 .andExpect(status().isForbidden());
     }
-    
+
+    // ===================================================================
+    // 3. TESTS DE GESTION DES INVITATIONS
+    // ===================================================================
+
     /**
-     * Test 8 : Vérification des permissions d'accès aux guides
+     * Test 9 : Invitation d'utilisateur à un guide
      * 
      * Vérifie que :
-     * - L'admin peut récupérer tous les guides via GET /api/guides
-     * - L'utilisateur ne peut récupérer que les guides via GET /api/guides/mes-guides  
-     * - L'utilisateur peut accéder aux guides dans lesquels il est invité via GET /api/guides/{id}
-     * - L'utilisateur ne peut pas accéder aux guides dans lesquels il n'est pas invité
+     * - Un admin peut inviter un utilisateur à un guide
+     * - L'utilisateur invité peut accéder au guide
+     * - Les validations fonctionnent correctement
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testInviteUserToGuide() throws Exception {
+        // Créer un nouvel utilisateur pour le test
+        User newUser = new User();
+        newUser.setEmail("newuser@test.com");
+        newUser.setPassword("password");
+        User savedNewUser = userRepository.save(newUser);
+        
+        // Test: Inviter l'utilisateur au guide 2 (qui n'avait pas d'invitation initialement)
+        String invitationJson = "{\"userId\": " + savedNewUser.getId() + "}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId2 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invitationJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(testGuideId2))
+                .andExpect(jsonPath("$.titre").value("Guide Test 2 - Sans invitation"));
+    }
+
+    /**
+     * Test 10 : Retrait d'utilisateur d'un guide
+     * 
+     * Vérifie que :
+     * - Un admin peut retirer un utilisateur d'un guide
+     * - L'utilisateur ne peut plus accéder au guide après retrait
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")  
+    public void testRemoveUserFromGuide() throws Exception {
+        // Test: Retirer l'utilisateur test du guide 1
+        String removalJson = "{\"userId\": " + testUserId + "}";
+        
+        mockMvc.perform(delete("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(removalJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(testGuideId1));
+    }
+
+    /**
+     * Test 11 : Validation des erreurs d'invitation
+     * 
+     * Vérifie que :
+     * - On ne peut pas inviter un utilisateur inexistant
+     * - On ne peut pas inviter un utilisateur déjà invité
+     * - On ne peut pas retirer un utilisateur non invité
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testInvitationValidationErrors() throws Exception {
+        // Test 1: Inviter un utilisateur inexistant
+        String invalidUserJson = "{\"userId\": 99999}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidUserJson))
+                .andExpect(status().isNotFound());
+
+        // Test 2: Inviter un utilisateur déjà invité
+        String existingUserJson = "{\"userId\": " + testUserId + "}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(existingUserJson))
+                .andExpect(status().isConflict());
+
+        // Test 3: Retirer un utilisateur non invité d'un guide
+        mockMvc.perform(delete("/api/guides/" + testGuideId2 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(existingUserJson))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Test 12 : Validation des données d'invitation
+     * 
+     * Vérifie que :
+     * - L'ID utilisateur est obligatoire
+     * - L'ID utilisateur doit être positif
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void testInvitationDataValidation() throws Exception {
+        // Test 1: ID utilisateur manquant
+        String emptyJson = "{}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(emptyJson))
+                .andExpect(status().isBadRequest());
+
+        // Test 2: ID utilisateur négatif
+        String negativeIdJson = "{\"userId\": -1}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(negativeIdJson))
+                .andExpect(status().isBadRequest());
+
+        // Test 3: ID utilisateur zéro
+        String zeroIdJson = "{\"userId\": 0}";
+        
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(zeroIdJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Test 13 : Sécurité des endpoints d'invitation
+     * 
+     * Vérifie que :
+     * - Seuls les admins peuvent inviter/retirer des utilisateurs
+     * - Les utilisateurs standards n'ont pas accès à ces fonctionnalités
+     */
+    @Test
+    @WithMockUser(roles = "USER")
+    public void testInvitationSecurityRestrictions() throws Exception {
+        String invitationJson = "{\"userId\": " + testUserId + "}";
+        
+        // Test: Un utilisateur ne peut pas inviter
+        mockMvc.perform(post("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invitationJson))
+                .andExpect(status().isForbidden());
+
+        // Test: Un utilisateur ne peut pas retirer
+        mockMvc.perform(delete("/api/guides/" + testGuideId1 + "/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invitationJson))
+                .andExpect(status().isForbidden());
+    }
+
+    // ===================================================================
+    // 4. TESTS DE CONTRÔLE D'ACCÈS ET PERMISSIONS
+    // ===================================================================
+
+    /**
+     * Test 14 : Contrôle d'accès basé sur les invitations - Admin
+     * 
+     * Vérifie que :
+     * - Un admin peut récupérer tous les guides
+     * - Un admin a accès complet aux données
      */
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -283,7 +460,14 @@ public class TravelGuideIntegrationTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2)); // Doit voir les 2 guides
     }
-    
+
+    /**
+     * Test 15 : Contrôle d'accès basé sur les invitations - Utilisateur
+     * 
+     * Vérifie que :
+     * - Un utilisateur ne peut récupérer que les guides auxquels il est invité
+     * - L'accès aux guides non autorisés est refusé
+     */
     @Test
     @WithMockUser(username = "testuser@example.com", roles = "USER")
     public void testUserCanAccessOnlyInvitedGuides() throws Exception {        
@@ -303,18 +487,5 @@ public class TravelGuideIntegrationTest {
         // Test 3: Utilisateur ne peut pas accéder au guide dans lequel il n'est pas invité
         mockMvc.perform(get("/api/guides/" + testGuideId2))
                 .andExpect(status().isForbidden()); // Doit être refusé
-    }
-    
-    @Test
-    public void testUnauthenticatedAccessDenied() throws Exception {
-        // Test: Utilisateur non authentifié ne peut accéder à aucun endpoint de guides
-        mockMvc.perform(get("/api/guides"))
-                .andExpect(status().isForbidden());
-                
-        mockMvc.perform(get("/api/guides/mes-guides"))
-                .andExpect(status().isForbidden());
-                
-        mockMvc.perform(get("/api/guides/" + testGuideId1))
-                .andExpect(status().isForbidden());
     }
 }

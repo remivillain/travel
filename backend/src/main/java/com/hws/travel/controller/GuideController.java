@@ -4,6 +4,7 @@ import com.hws.travel.dto.GuideCreateDto;
 import com.hws.travel.dto.GuideDto;
 import com.hws.travel.dto.GuideUpdateDto;
 import com.hws.travel.dto.GuideActiviteCreateDto;
+import com.hws.travel.dto.UserInvitationDto;
 import com.hws.travel.service.UserService;
 import com.hws.travel.service.impl.GuideServiceImpl;
 
@@ -87,5 +88,19 @@ public class GuideController {
     public GuideDto removeActivityFromGuide(@PathVariable @Positive(message = "L'ID doit être positif") Long id,
                                            @PathVariable @Positive(message = "L'ID de l'activité doit être positif") Long activityId) {
         return guideService.removeActivityFromGuide(id, activityId);
+    }
+
+    @PostMapping("/{id}/invite")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto inviteUserToGuide(@PathVariable @Positive(message = "L'ID doit être positif") Long id,
+                                     @Valid @RequestBody UserInvitationDto userInvitationDto) {
+        return guideService.inviteUserToGuide(id, userInvitationDto.getUserId());
+    }
+
+    @DeleteMapping("/{id}/invite")
+    @PreAuthorize("hasRole('ADMIN')")
+    public GuideDto removeUserFromGuide(@PathVariable @Positive(message = "L'ID doit être positif") Long id,
+                                       @Valid @RequestBody UserInvitationDto userInvitationDto) {
+        return guideService.removeUserFromGuide(id, userInvitationDto.getUserId());
     }
 }
