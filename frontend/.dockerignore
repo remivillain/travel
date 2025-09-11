@@ -1,0 +1,14 @@
+# Dockerignore pour le frontend
+node_modules
+npm-debug.log
+.git
+.gitignore
+README.md
+Dockerfile
+docker-compose.yml
+dist/
+.angular/
+coverage/
+.nyc_output
+e2e/
+**/*.spec.ts
