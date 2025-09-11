@@ -17,10 +17,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
@@ -68,6 +70,18 @@ public class GuideController {
             @PathVariable @Positive(message = "L'ID doit être positif") Long id, 
             Authentication authentication) {
         String email = authentication.getName();
+        
+        // Si l'utilisateur est admin, il peut accéder à tous les guides
+        boolean isAdmin = authentication.getAuthorities().stream()
+            .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        
+        if (isAdmin) {
+            return guideService.getGuideById(id)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.NOT_FOUND, "Guide non trouvé"));
+        }
+        
+        // Pour les utilisateurs normaux, vérifier les permissions
         Long userId = userService.findIdByEmail(email);
         return guideService.getGuideByIdForUser(id, userId);
     }

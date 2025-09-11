@@ -32,6 +32,10 @@ export class GuideService {
       return [];
     }
 
+    // Vérifier si l'utilisateur est admin
+    const isAdmin = this.authService.hasRole('ADMIN');
+    const endpoint = isAdmin ? this.apiUrl : this.apiUrl + '/mes-guides';
+
     // Si hors-ligne, retourner les données en cache (déjà filtrées par le backend)
     if (!this.networkService.isOnline()) {
       const cachedGuides = this.offlineStorage.getCachedUserGuides();
@@ -45,7 +49,7 @@ export class GuideService {
     try {
       // Tentative de récupération en ligne
       const result = await firstValueFrom(
-        this.http.get<Guide[]>(this.apiUrl + '/mes-guides', { 
+        this.http.get<Guide[]>(endpoint, { 
           headers: this.getAuthHeaders() 
         }).pipe(
           catchError(error => {
@@ -62,7 +66,7 @@ export class GuideService {
 
       const guides = result ?? [];
       
-      // Le backend fait déjà le filtrage via /mes-guides, pas besoin de refiltrer
+      // Le backend fait déjà le filtrage, pas besoin de refiltrer
       // Toujours mettre en cache les guides récupérés (même si vide)
       this.offlineStorage.cacheUserGuides(guides);
       console.log(`📦 ${guides.length} guides mis en cache`);

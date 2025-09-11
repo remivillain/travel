@@ -18,7 +18,7 @@ export class AuthService {
     localStorage.removeItem('jwt');
   }
 
-  currentUser(): { id?: number, email?: string } | null {
+  currentUser(): { id?: number, email?: string, roles?: string[] } | null {
     if (typeof window === 'undefined') return null;
     
     try {
@@ -28,7 +28,8 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return { 
         id: payload.userId || payload.id,
-        email: payload.email 
+        email: payload.email,
+        roles: payload.roles || []
       };
     } catch {
       return null;
@@ -38,5 +39,14 @@ export class AuthService {
   getCurrentUserId(): number | null {
     const user = this.currentUser();
     return user?.id || null;
+  }
+
+  hasRole(role: string): boolean {
+    const user = this.currentUser();
+    return user?.roles?.includes(role) || false;
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('ADMIN');
   }
 }
