@@ -32,15 +32,21 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    public String generateToken(String username, Collection<String> roles) {
+    public String generateToken(String username, Collection<String> roles, Long userId) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
+                .claim("userId", userId)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusMillis(jwtExpiration)))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    // Méthode de compatibilité (à supprimer plus tard)
+    public String generateToken(String username, Collection<String> roles) {
+        return generateToken(username, roles, null);
     }
 
     public List<String> extractRoles(String token) {
@@ -60,6 +66,19 @@ public class JwtUtil {
             return Collections.emptyList();
         } catch (Exception e) {
             return Collections.emptyList();
+        }
+    }
+
+    public Long extractUserId(String token) {
+        try {
+            Claims claims = validateToken(token);
+            Object userIdObj = claims.get("userId");
+            if (userIdObj instanceof Number) {
+                return ((Number) userIdObj).longValue();
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
         }
     }
 

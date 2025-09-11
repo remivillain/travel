@@ -28,8 +28,8 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       
       return { 
-        id: payload.userId || payload.id || payload.sub,
-        email: payload.email,
+        id: payload.userId || payload.id,
+        email: payload.sub || payload.email,
         roles: payload.roles || []
       };
     } catch (error) {
@@ -37,10 +37,10 @@ export class AuthService {
     }
   }
 
-  getCurrentUserId(): string | null {
+  getCurrentUserId(): number | null {
     const user = this.currentUser();
-    // Utiliser l'email comme identifiant unique au lieu de l'ID numérique
-    return user?.email || null;
+    // Récupérer l'ID numérique depuis le JWT (userId claim)
+    return user?.id || null;
   }
 
   hasRole(role: string): boolean {

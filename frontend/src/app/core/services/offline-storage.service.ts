@@ -5,7 +5,7 @@ export interface CacheEntry<T> {
   data: T;
   timestamp: number;
   expiresAt: number;
-  userId?: string; // Changé de number à string pour supporter l'email
+  userId?: number; // Retour à number pour l'ID utilisateur
 }
 
 export interface PendingSync {
@@ -30,7 +30,7 @@ export class OfflineStorageService {
   /**
    * Stocke des données dans le cache local avec TTL et sécurité utilisateur
    */
-  setCache<T>(key: string, data: T, ttlMinutes: number = 60, userId?: string): void {
+  setCache<T>(key: string, data: T, ttlMinutes: number = 60, userId?: number): void {
     if (typeof window === 'undefined') return;
 
     const entry: CacheEntry<T> = {
@@ -50,7 +50,7 @@ export class OfflineStorageService {
   /**
    * Récupère des données du cache local avec vérification utilisateur
    */
-  getCache<T>(key: string, userId?: string): T | null {
+  getCache<T>(key: string, userId?: number): T | null {
     if (typeof window === 'undefined') return null;
 
     try {
@@ -104,28 +104,28 @@ export class OfflineStorageService {
   /**
    * Cache les guides de l'utilisateur avec son ID
    */
-  cacheUserGuides(guides: Guide[], userId: string): void {
+  cacheUserGuides(guides: Guide[], userId: number): void {
     this.setCache('user_guides', guides, 720, userId); // 12 heures
   }
 
   /**
    * Récupère les guides depuis le cache pour l'utilisateur actuel
    */
-  getCachedUserGuides(userId: string): Guide[] | null {
+  getCachedUserGuides(userId: number): Guide[] | null {
     return this.getCache<Guide[]>('user_guides', userId);
   }
 
   /**
    * Cache un guide spécifique avec l'ID utilisateur
    */
-  cacheGuide(guide: Guide, userId: string): void {
+  cacheGuide(guide: Guide, userId: number): void {
     this.setCache(`guide_${guide.id}`, guide, 720, userId); // 12 heures
   }
 
   /**
    * Récupère un guide spécifique depuis le cache pour l'utilisateur actuel
    */
-  getCachedGuide(id: number, userId: string): Guide | null {
+  getCachedGuide(id: number, userId: number): Guide | null {
     return this.getCache<Guide>(`guide_${id}`, userId);
   }
 

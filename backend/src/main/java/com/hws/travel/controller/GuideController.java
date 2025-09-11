@@ -7,6 +7,7 @@ import com.hws.travel.dto.GuideActiviteCreateDto;
 import com.hws.travel.dto.UserInvitationDto;
 import com.hws.travel.service.UserService;
 import com.hws.travel.service.impl.GuideServiceImpl;
+import com.hws.travel.security.AuthenticationHelper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,12 +18,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
@@ -33,10 +32,12 @@ import java.util.List;
 public class GuideController {
     private final GuideServiceImpl guideService;
     private final UserService userService;
+    private final AuthenticationHelper authHelper;
 
-    public GuideController(GuideServiceImpl guideService, UserService userService) {
+    public GuideController(GuideServiceImpl guideService, UserService userService, AuthenticationHelper authHelper) {
         this.guideService = guideService;
         this.userService = userService;
+        this.authHelper = authHelper;
     }
 
     @GetMapping
@@ -82,15 +83,25 @@ public class GuideController {
         }
         
         // Pour les utilisateurs normaux, vérifier les permissions
-        Long userId = userService.findIdByEmail(email);
+        // Essayer d'abord de récupérer l'ID depuis le JWT
+        Long userId = authHelper.getCurrentUserId();
+        if (userId == null) {
+            // Fallback : récupérer l'ID depuis l'email
+            userId = userService.findIdByEmail(email);
+        }
         return guideService.getGuideByIdForUser(id, userId);
     }
 
     @GetMapping("/mes-guides")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public List<GuideDto> getGuidesForCurrentUser(Authentication authentication) {
-        String email = authentication.getName();
-        Long userId = userService.findIdByEmail(email);
+        // Essayer d'abord de récupérer l'ID depuis le JWT
+        Long userId = authHelper.getCurrentUserId();
+        if (userId == null) {
+            // Fallback : récupérer l'ID depuis l'email
+            String email = authentication.getName();
+            userId = userService.findIdByEmail(email);
+        }
         return guideService.getGuidesForUser(userId).stream().toList();
     }
 

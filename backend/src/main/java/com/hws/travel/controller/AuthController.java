@@ -46,7 +46,7 @@ public class AuthController {
         if (roles.isEmpty()) {
             throw new NoRoleAssignedException("Aucun rôle associé à cet utilisateur. Veuillez contacter un administrateur.");
         }
-        String token = jwtUtil.generateToken(email, roles);
+        String token = jwtUtil.generateToken(email, roles, user.getId());
         return Map.of("token", token);
     }
 }
