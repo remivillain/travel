@@ -28,6 +28,22 @@ ng serve
 # Attendre "Application bundle generation complete"
 ```
 
+### ⚠️ Dépannage installation Frontend
+
+**En cas d'erreurs lors de `npm install` :**
+
+```bash
+# Dans le dossier frontend/
+# 1. Supprimer les fichiers
+rm -f package-lock.json
+rm -rf node_modules
+
+# 2. Réinstaller
+npm install
+```
+
+**Note** : Si `node_modules` résiste à la suppression, utiliser `npm install --force`
+
 ### 3. URLs d'accès
 - **Application** : http://localhost:4200
 - **API Swagger** : http://localhost:8080/swagger-ui/index.html
@@ -44,7 +60,7 @@ ng serve
 2. Se connecter avec :
    - **Email** : `admin@admin.com`
    - **Mot de passe** : `admin123`
-3. **✅ Résultat attendu** : Accès à tous les guides + fonctions d'administration
+3. **✅ Résultat attendu** : Accès à tous les guides
 
 #### Test 1.2 - Connexion Utilisateur standard
 1. Se déconnecter et se reconnecter avec :
@@ -241,6 +257,4 @@ ng serve
 3. Recharger la page (F5) ou fermer/rouvrir l'onglet
 4. **✅ Résultat attendu** : L'application et les guides consultés restent accessibles
 5. **✅ Utilité** : Permet de consulter les guides de voyage même sans connexion internet
-
----
 
