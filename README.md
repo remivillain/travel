@@ -250,5 +250,5 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - `POST /api/roles` - Créer un rôle (ADMIN)
 - `DELETE /api/roles/{id}` - Supprimer un rôle (ADMIN)
 
-## Une procédure de test est disponible ici : (PROCEDURE_TEST.md)
+## Une procédure de test est disponible ici : [Procedure de test](PROCEDURE_TEST.md)
 
