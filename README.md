@@ -4,25 +4,68 @@ Application de gestion de guides de voyage avec système d'invitations et suppor
 
 ## 🚀 Démarrage rapide
 
-### Prérequis
-- Java 21
-- Node.js 18+
-- Maven 3.8+
+### Option 1 : Avec Docker (Recommandé - Plus simple)
 
-### Installation
+#### Prérequis
+- Docker et Docker Compose installés
+- Git
 
-1. **Backend (Spring Boot)**
+#### Lancement
 ```bash
-cd backend
-./mvnw spring-boot:run
+# Cloner le repository
+git clone <repository-url>
+cd travel
+
+# Lancer l'application complète
+docker-compose up --build
+
+# Attendre les messages de démarrage :
+# ✔ Container travel-backend-1   Started
+# ✔ Container travel-frontend-1  Started
 ```
 
-2. **Frontend (Angular)**
+** Note importante** : Si vous avez des erreurs de port (8080 ou 4200 déjà utilisés), arrêtez vos services locaux ou modifiez les ports dans `docker-compose.yml`.
+
+### Option 2 : Installation locale (Développement)
+
+#### Prérequis
+- Java 21+ installé
+- Node.js 18+ installé
+- Git
+
+#### Lancement
 ```bash
+# Cloner le repository
+git clone <repository-url>
+cd travel
+
+# Terminal 1 - Backend (Spring Boot)
+cd backend
+./mvnw spring-boot:run
+# Attendre le message "Started TravelApplication in X seconds"
+
+# Terminal 2 - Frontend (Angular) 
 cd frontend
 npm install
 ng serve
+# Attendre "Application bundle generation complete"
 ```
+
+### ⚠️ Dépannage installation Frontend
+
+**En cas d'erreurs lors de `npm install` :**
+
+```bash
+# Dans le dossier frontend/
+# 1. Supprimer les fichiers
+rm -f package-lock.json
+rm -rf node_modules
+
+# 2. Réinstaller
+npm install
+```
+
+**Note** : Si `node_modules` résiste à la suppression, utiliser `npm install --force`
 
 L'application sera accessible sur :
 - Frontend : http://localhost:4200
@@ -79,7 +122,7 @@ L'application sera accessible sur :
 
 ### ✅ Gestion des activités
 - CRUD complet des activités
-- Catégorisation (Musée, Château, Parc, Grotte, Activité)
+- Catégorisation (Musée, Château, Parc, Grotte)
 - Informations pratiques complètes
 
 ### ✅ Système d'authentification
@@ -102,11 +145,6 @@ La documentation interactive de l'API est disponible via SpringDoc OpenAPI 3 :
 - **OpenAPI JSON** : http://localhost:8080/v3/api-docs
 - **Version SpringDoc** : 2.8.13 (compatible Spring Boot 3.5.5)
 
-### Authentification dans Swagger
-1. Cliquez sur le bouton "Authorize" 🔒 en haut à droite
-2. Entrez le token JWT **sans le préfixe "Bearer"** (SpringDoc l'ajoute automatiquement)
-3. Le token s'obtient via l'endpoint `/api/auth/login`
-4. Utilisez un des comptes de test listés ci-dessus
 
 ### Endpoints documentés avec annotations OpenAPI 3
 - **Authentification** : Connexion et gestion des tokens JWT
@@ -115,19 +153,6 @@ La documentation interactive de l'API est disponible via SpringDoc OpenAPI 3 :
 - **Utilisateurs** : Administration des comptes (ADMIN uniquement)
 - **Rôles** : Gestion des rôles système (ADMIN, USER, etc.)
 
-## 🧪 Tests
-
-### Tests d'intégration
-```bash
-cd backend
-./mvnw test -Dtest=TravelGuideIntegrationTest
-```
-
-### Tests unitaires complets
-```bash
-cd backend
-./mvnw test
-```
 
 ## 📱 Mode hors-ligne
 
@@ -149,7 +174,7 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - **Tailwind CSS** pour le style
 
 ### 🔧 Versions et compatibilité
-- **Java** : 21+ (testé avec Java 23)
+- **Java** : 21+ 
 - **Spring Boot** : 3.5.5
 - **SpringDoc OpenAPI** : 2.8.13 (compatible Spring Boot 3.5.x)
 - **Maven** : 3.8+
@@ -163,15 +188,15 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - Configuration H2 et architecture Spring Boot
 - Mise en place JWT et système d'authentification
 
-### Phase 2 : Frontend & API
-- Développement Angular avec Standalone Components
-- Intégration Tailwind CSS et composants UI
-- Connexion API REST avec gestion JWT
-
-### Phase 3 : Features Core
+### Phase 2 : Features Core
 - CRUD complet guides et activités
 - Système d'invitations utilisateur
 - Contrôle d'accès et permissions
+
+### Phase 3 : Frontend & API
+- Développement Angular avec Standalone Components
+- Intégration Tailwind CSS et composants UI
+- Connexion API REST avec gestion JWT
 
 ### Phase 4 : UX & Performance
 - Mode hors-ligne avec PWA
@@ -180,8 +205,8 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 
 ### Phase 5 : Testing & Security
 - Tests d'intégration complets
-- Correction failles sécurité offline
-- Procédures de test pour recrutement
+- Correction offline
+- Procédures de test
 
 ### Phase 6 : DevOps & Deploy
 - Configuration Docker complète
@@ -225,11 +250,5 @@ Consultez le [Guide du mode hors-ligne](OFFLINE_GUIDE.md) pour plus de détails 
 - `POST /api/roles` - Créer un rôle (ADMIN)
 - `DELETE /api/roles/{id}` - Supprimer un rôle (ADMIN)
 
-## ⚡ Notes techniques importantes
-
-### SpringDoc OpenAPI 3
-- **Version recommandée** : 2.8.13 pour Spring Boot 3.5.x
-- Les versions antérieures (2.5.0, 2.6.0, 2.7.0) peuvent causer des erreurs de compatibilité
-- Configuration sécurisée avec authentification JWT Bearer
-- Documentation automatique générée depuis les annotations @Operation, @ApiResponses, etc.
+## Une procédure de test est disponible ici : (PROCEDURE_TEST.md)
 
